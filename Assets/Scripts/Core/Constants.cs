@@ -18,6 +18,12 @@ namespace ReflecBeatSimulator.Core
         /// <summary>Default note approach time in seconds.</summary>
         public const double DefaultApproachTime = 1.0;
 
+        /// <summary>
+        /// Half-width of a tap note's judgment region on the normalized judgment line (0.0–1.0).
+        /// A touch within this distance of a note's x can judge it.
+        /// </summary>
+        public const float TapHitHalfWidth = 0.15f;
+
         /// <summary>Number of taps collected during calibration.</summary>
         public const int CalibrationTapCount = 16;
     }
