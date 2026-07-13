@@ -35,6 +35,7 @@ namespace ReflecBeatSimulator.Gameplay
         private void OnDisable()
         {
             Touch.onFingerDown -= OnFingerDown;
+            EnhancedTouchSupport.Disable();
         }
 
         private void Start()
