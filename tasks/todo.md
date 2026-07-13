@@ -1,25 +1,37 @@
 # Todo
 
-## Now
+## M0 — Calibration spike (in progress)
 
-- [x] Create Unity prototype scripts
-- [x] Generate placeholder audio
-- [x] Write README and documentation
-- [ ] Install Unity Hub and Unity 2022.3 LTS
-- [ ] Open this project in Unity
-- [ ] Wire up the scene following `README.md`
-- [ ] Press Play and verify notes spawn, move, and can be hit
+- [x] Initialize git repo and commit legacy baseline
+- [x] Add Input System / Test Framework packages and project settings
+- [x] Create `Core/Constants`
+- [x] Create `Audio/SongClock`, `Audio/Metronome`, `Audio/AudioPlayback`
+- [x] Write `SongClock` EditMode tests
+- [x] Create calibration scripts (`CalibrationController`, `CalibrationUI`, `CalibrationStore`, `CalibrationBeatMarker`)
+- [ ] Wire `CalibrationScene` in Unity (camera, AudioSource, UI, beat marker)
+- [ ] Verify metronome sync in Editor
+- [ ] Build to Galaxy Tab and measure tap deltas
 
-## Next
+## M1 — Playable baseline
 
-- [ ] Build and run on Android device
-- [ ] Tune `travelTime` and judgment windows until it feels good
-- [ ] Design a JSON chart format
-- [ ] Build a simple chart editor
+- [ ] Core chart model (`Note`, `Chart`, `TimingConverter`, `Judge`, `Score`)
+- [ ] EditMode tests for `TimingConverter`, `Judge`, `Score`
+- [ ] `Gameplay/NoteObject`, `PlayfieldRenderer`, `TouchInput`, `GameController`
+- [ ] `GameplayScene`, `TapNote` prefab, HUD / results UI
+- [ ] Delete old prototype scripts (`NoteData`, `Note`, `TargetZone`, `UIManager`, old `GameController`)
+- [ ] Update README and architecture docs
 
-## Later
+## M2 — Chart support
 
-- [ ] Add hold notes and chain notes
-- [ ] Add menus and song select
-- [ ] Add iOS build support
-- [ ] Add audio offset/calibration settings
+- [ ] `ChartParser` and `RbChartException`
+- [ ] `ContentBootstrapper` to copy demo chart/audio on first launch
+- [ ] All note types (long, vertical, top, bigbang)
+- [ ] `ChartSelectScene` and persistent-data loading
+- [ ] `ChartParser` EditMode tests
+
+## Later / out of scope until M2 is done
+
+- M3 authoring workflow
+- Visual polish / themes
+- iOS build support
+- Online / versus features

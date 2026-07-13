@@ -24,8 +24,8 @@ A fan-made, clean-room simulator inspired by Konami's Reflec Beat (2010–2020).
 
 1. **M0 — Sync spike.** No gameplay. One scene: play an audio clip via `PlayScheduled`, render a metronome tick, capture touches, log `(touchTime − beatTime)` deltas on the actual tablet. This validates the entire timing model before anything else is built.
 2. **M1 — Playable baseline.** One hardcoded chart, `tap` notes only, judgment line, JUST/GREAT/GOOD/MISS grading, plain text results. Placeholder circles for notes.
-3. **M2 — Chart format.** JSON loader, BPM changes, remaining note types, chart selection from device storage.
-4. **M3 — Authoring.** Chart editor or documented hand-authoring workflow (decide after M2).
+3. **M2 — Chart format.** JSON loader, BPM changes, remaining note types, chart selection from device storage. Includes an **autoplay mode** (engine judges every note perfectly) — the fastest way to verify a chart's sync by ear with no human in the loop.
+4. **M3 — Authoring.** Chart editor or documented hand-authoring workflow (decide after M2). Hard requirement: the author must be able to **preview timing in place** (play the chart section with audio from inside the workflow) — lack of this was the top complaint about prior art (§8).
 
 Anything not listed above is out of scope until these are done.
 
@@ -232,3 +232,25 @@ Rule for agents: `Core/` classes must not reference `MonoBehaviour`, `GameObject
 | dspTime jitter causing visual stutter | SongClock smoothing (§4.3) |
 | Scope creep into visuals/themes | Locked decision: placeholders until M1 is playable |
 | Ripped Konami content entering the repo | Hard IP rule (top of doc); original/CC content only |
+
+---
+
+## 8. Prior art: REFLET MUSE + RMSCreator (c. 2014)
+
+A fan-made Windows Reflec Beat simulator (REFLET MUSE) and chart editor
+(RMSCreator) by a Japanese developer (gdlife.sakura.ne.jp), discussed on the
+Zenius-I-vanisher forums (threadid 7176). Lessons this design incorporates:
+
+- **Sync was its weakest point.** It had no explicit offset field — audio was
+  aligned by choosing where in the chart the music starts — and even experienced
+  charters reported being unable to sync charts properly. Hence our explicit
+  `audioOffsetMs` (§3.1) and mandatory calibration (§4.4).
+- **No in-editor timing preview.** Charts could only be timing-checked by
+  loading them into the simulator. Hence the M3 preview requirement (§2).
+- **Loose judgment windows** relative to the arcade. Hence windows as tunable
+  named constants (§4.6), so they can be tightened against feel-testing.
+- **Autoplay via config files** proved valuable to its community for chart
+  showcases and verification. Hence the M2 autoplay mode (§2).
+
+We are not importing its chart format or code; it is referenced for lessons
+only. A community-format importer could be reconsidered post-M3 if demand exists.

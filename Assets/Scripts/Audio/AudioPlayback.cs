@@ -1,0 +1,22 @@
+using UnityEngine;
+
+namespace ReflecBeatSimulator.Audio
+{
+    /// <summary>
+    /// Small helper for scheduling audio playback on the DSP clock.
+    /// </summary>
+    public static class AudioPlayback
+    {
+        /// <summary>
+        /// Schedules <paramref name="clip"/> on <paramref name="source"/> to start
+        /// after <paramref name="delaySec"/> seconds and returns the scheduled DSP time.
+        /// </summary>
+        public static double Schedule(AudioSource source, AudioClip clip, double delaySec = 0.5)
+        {
+            double startDsp = AudioSettings.dspTime + delaySec;
+            source.clip = clip;
+            source.PlayScheduled(startDsp);
+            return startDsp;
+        }
+    }
+}
