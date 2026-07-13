@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem.EnhancedTouch;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 namespace ReflecBeatSimulator.Gameplay
 {
@@ -40,7 +40,7 @@ namespace ReflecBeatSimulator.Gameplay
         {
             Vector2 screenPos = finger.screenPosition;
             var touch = finger.currentTouch;
-            int touchId = touch?.touchId ?? finger.index;
+            int touchId = touch.valid ? touch.touchId : finger.index;
             var data = new TouchData(
                 touchId,
                 screenPos.x / Screen.width,
