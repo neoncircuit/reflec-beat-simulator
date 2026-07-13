@@ -12,11 +12,12 @@ A running list of work items for the Reflec Beat Simulator.
 | 6 | M0: Calibration scripts | Completed | Controller, UI, store (JSON), beat marker. |
 | 7 | M0: Wire `CalibrationScene` in Unity | Pending | Needs Unity Editor to place objects/prefabs. |
 | 8 | M0: Verify metronome sync on device | Pending | Requires Galaxy Tab build. |
-| 9 | M1: Core chart model + timing/judge/score | Pending | Pure C#, EditMode tests first. |
+| 9 | M1: Core chart model + timing/judge/score | Completed | Pure C#, EditMode tests first. |
 | 10 | M1: Gameplay loop + scene | Pending | `NoteObject`, `PlayfieldRenderer`, `TouchInput`, `GameController`. |
 | 11 | M1: Delete old prototype scripts | Pending | After replacements compile. |
 | 12 | M2: JSON chart loader + content bootstrapper | Pending | Persistent data path, copy from StreamingAssets. |
 | 13 | M2: All note types + chart select | Pending | Long, vertical, top, bigbang. |
+| 14 | CI/CD scaffolding | Completed | Super-linter, TruffleHog, DevSkim, Dependabot. |
 
 ## Legend
 

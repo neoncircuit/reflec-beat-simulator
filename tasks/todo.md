@@ -14,8 +14,8 @@
 
 ## M1 — Playable baseline
 
-- [ ] Core chart model (`Note`, `Chart`, `TimingConverter`, `Judge`, `Score`)
-- [ ] EditMode tests for `TimingConverter`, `Judge`, `Score`
+- [x] Core chart model (`Note`, `Chart`, `TimingConverter`, `Judge`, `Score`)
+- [x] EditMode tests for `TimingConverter`, `Judge`, `Score`
 - [ ] `Gameplay/NoteObject`, `PlayfieldRenderer`, `TouchInput`, `GameController`
 - [ ] `GameplayScene`, `TapNote` prefab, HUD / results UI
 - [ ] Delete old prototype scripts (`NoteData`, `Note`, `TargetZone`, `UIManager`, old `GameController`)
@@ -31,6 +31,7 @@
 
 ## Later / out of scope until M2 is done
 
+- [x] CI/CD scaffolding (linting, security scan, dependabot)
 - M3 authoring workflow
 - Visual polish / themes
 - iOS build support
