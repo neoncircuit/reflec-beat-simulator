@@ -16,7 +16,7 @@
 
 - [x] Core chart model (`Note`, `Chart`, `TimingConverter`, `Judge`, `Score`)
 - [x] EditMode tests for `TimingConverter`, `Judge`, `Score`
-- [ ] `Gameplay/NoteObject`, `PlayfieldRenderer`, `TouchInput`, `GameController`
+- [x] `Gameplay/NoteObject`, `PlayfieldRenderer`, `TouchInput`, `GameController`
 - [ ] `GameplayScene`, `TapNote` prefab, HUD / results UI
 - [ ] Delete old prototype scripts (`NoteData`, `Note`, `TargetZone`, `UIManager`, old `GameController`)
 - [ ] Update README and architecture docs
