@@ -41,6 +41,7 @@ namespace ReflecBeatSimulator.Gameplay
         private bool _autoplay;
         private bool _syncCheck;
         private SyncReport _syncReport;
+        private NoteObjectPool _notePool;
 
         private List<Note> _sessionNotes;
         private bool _isDuel;
@@ -133,6 +134,16 @@ namespace ReflecBeatSimulator.Gameplay
             _inputOffsetSec = CalibrationStore.Load();
             double chartOffsetSec = _chart.Timing.AudioOffsetMs / 1000.0;
 
+            var prefabsByType = new Dictionary<string, GameObject>
+            {
+                { NoteType.Tap, _tapNotePrefab },
+                { NoteType.Long, _longNotePrefab },
+                { NoteType.Vertical, _verticalNotePrefab },
+                { NoteType.Top, _topNotePrefab },
+                { NoteType.BigBang, _bigBangNotePrefab }
+            };
+            _notePool = new NoteObjectPool(prefabsByType, transform);
+
             if (ChartSession.IsPreview)
             {
                 _audioOffsetSec = chartOffsetSec - ChartSession.PreviewStartSec;
@@ -155,6 +166,8 @@ namespace ReflecBeatSimulator.Gameplay
                 _touchInput.OnTouchBegan -= HandleTouchBegan;
                 _touchInput.OnTouchEnded -= HandleTouchEnded;
             }
+
+            _notePool?.Clear();
         }
 
         private void Update()
@@ -199,39 +212,26 @@ namespace ReflecBeatSimulator.Gameplay
             if (_playfield == null)
                 return;
 
-            GameObject prefab = ResolvePrefab(note.Type);
-            if (prefab == null)
+            if (_notePool == null)
+            {
+                Debug.LogError("GameController: NoteObjectPool is not initialized.");
                 return;
+            }
 
             float visualX = GetVisualX(note);
             Vector3 spawnPos = note.Type == NoteType.Top
                 ? _playfield.GetTopSpawnPosition(note.Zone)
                 : _playfield.GetSpawnPosition(visualX);
-            GameObject go = Instantiate(prefab, spawnPos, Quaternion.identity);
-            var noteObject = go.GetComponent<NoteObject>();
+
+            NoteObject noteObject = _notePool.Get(note.Type, spawnPos);
             if (noteObject == null)
             {
-                Debug.LogError($"Note prefab for '{note.Type}' is missing a NoteObject component.");
-                Destroy(go);
+                Debug.LogError($"GameController: NoteObjectPool failed to provide a note for type '{note.Type}'.");
                 return;
             }
 
-            noteObject.Initialize(note, _playfield, _approachTime, visualX);
+            noteObject.Initialize(note, _playfield, _approachTime, visualX, _notePool);
             _activeNotes.Add(noteObject);
-        }
-
-        private GameObject ResolvePrefab(string noteType)
-        {
-            GameObject prefab = noteType switch
-            {
-                NoteType.Long => _longNotePrefab,
-                NoteType.Vertical => _verticalNotePrefab,
-                NoteType.Top => _topNotePrefab,
-                NoteType.BigBang => _bigBangNotePrefab,
-                _ => _tapNotePrefab
-            };
-
-            return prefab ?? _tapNotePrefab;
         }
 
         private static float GetVisualX(Note note)
@@ -257,7 +257,7 @@ namespace ReflecBeatSimulator.Gameplay
             for (int i = _activeNotes.Count - 1; i >= 0; i--)
             {
                 var noteObject = _activeNotes[i];
-                if (noteObject == null || noteObject.IsJudged)
+                if (noteObject == null || !noteObject.gameObject.activeInHierarchy)
                 {
                     _activeNotes.RemoveAt(i);
                     continue;
@@ -513,9 +513,10 @@ namespace ReflecBeatSimulator.Gameplay
                 foreach (var noteObject in _activeNotes)
                 {
                     if (noteObject != null)
-                        Destroy(noteObject.gameObject);
+                        noteObject.ReturnToPool();
                 }
                 _activeNotes.Clear();
+                _notePool?.Clear();
 
                 _resultsUI?.Show(_score, outcome, _syncReport);
                 return;
@@ -534,9 +535,10 @@ namespace ReflecBeatSimulator.Gameplay
             foreach (var noteObject in _activeNotes)
             {
                 if (noteObject != null)
-                    Destroy(noteObject.gameObject);
+                    noteObject.ReturnToPool();
             }
             _activeNotes.Clear();
+            _notePool?.Clear();
 
             _resultsUI?.Show(_score, null, _syncReport);
         }

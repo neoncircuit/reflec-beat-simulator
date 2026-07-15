@@ -19,26 +19,39 @@ namespace ReflecBeatSimulator.Gameplay
 
         private Note _note;
         private PlayfieldRenderer _playfield;
+        private NoteObjectPool _pool;
         private double _approachTime;
         private float _visualX;
         private float _bounceDirection = 1f;
         private bool _isRival;
+        private bool _baseEnableBounce;
 
         public bool IsJudged { get; private set; }
         public bool IsHeld { get; private set; }
         public Note Note => _note;
 
+        private void Awake()
+        {
+            _baseEnableBounce = _enableBounce;
+        }
+
         /// <summary>Initializes the note with its chart data and playfield context.</summary>
-        public void Initialize(Note note, PlayfieldRenderer playfield, double approachTime, float visualX)
+        public void Initialize(Note note, PlayfieldRenderer playfield, double approachTime, float visualX, NoteObjectPool pool = null)
         {
             _note = note;
+            _pool = pool;
             _isRival = note != null && note.IsRival;
             _playfield = playfield;
             _approachTime = approachTime > 0.0 ? approachTime : Constants.DefaultApproachTime;
             _visualX = visualX;
             _bounceDirection = visualX < 0.5f ? 1f : -1f;
-            _enableBounce = _enableBounce && !_isRival;
+            _enableBounce = _baseEnableBounce && !_isRival;
             transform.localScale = Vector3.one * (_playfield.NoteWorldWidth / _spriteWidth);
+
+            SpriteRenderer renderer = GetComponentInChildren<SpriteRenderer>();
+            if (renderer != null)
+                renderer.color = Color.white;
+
             ApplyTint(note);
             ApplyDirectionVisuals();
         }
@@ -72,11 +85,30 @@ namespace ReflecBeatSimulator.Gameplay
             transform.position = position;
         }
 
-        /// <summary>Marks the note as judged and removes its visual.</summary>
+        /// <summary>Marks the note as judged and returns it to the pool (or destroys it if un-pooled).</summary>
         public void MarkJudged()
         {
+            if (IsJudged)
+                return;
+
             IsJudged = true;
-            Destroy(gameObject);
+            ReturnToPool();
+        }
+
+        /// <summary>Returns the object to its pool without marking it judged.</summary>
+        public void ReturnToPool()
+        {
+            if (_pool != null && _note != null)
+                _pool.Release(this, _note.Type);
+            else
+                Destroy(gameObject);
+        }
+
+        /// <summary>Resets runtime state so the object can be reused from the pool.</summary>
+        public void ResetState()
+        {
+            IsJudged = false;
+            IsHeld = false;
         }
 
         /// <summary>Locks the note at the judgment line while a long note is being held.</summary>
