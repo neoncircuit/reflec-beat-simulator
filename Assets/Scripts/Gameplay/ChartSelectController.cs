@@ -142,6 +142,7 @@ namespace ReflecBeatSimulator.UI
                 ChartSession.AudioClip = audio;
                 ChartSession.Autoplay = _ui != null && _ui.Autoplay;
                 ChartSession.SyncCheck = _ui != null && _ui.SyncCheck;
+                ChartSession.HideRivalVisuals = _ui != null && _ui.HideRivalVisuals;
                 ChartSession.ApproachTime = _ui != null ? _ui.ApproachTime : Constants.DefaultApproachTime;
                 SceneManager.LoadScene("GameplayScene");
             }

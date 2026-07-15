@@ -218,6 +218,9 @@ namespace ReflecBeatSimulator.Gameplay
             if (_playfield == null)
                 return;
 
+            if (ChartSession.HideRivalVisuals && note.IsRival)
+                return;
+
             if (_notePool == null)
             {
                 Debug.LogError("GameController: NoteObjectPool is not initialized.");

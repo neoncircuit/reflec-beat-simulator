@@ -14,6 +14,7 @@ namespace ReflecBeatSimulator.UI
         [SerializeField] private GameObject _chartButtonPrefab;
         [SerializeField] private Toggle _autoplayToggle;
         [SerializeField] private Toggle _syncCheckToggle;
+        [SerializeField] private Toggle _hideRivalToggle;
         [SerializeField] private Button _calibrateButton;
         [SerializeField] private Dropdown _approachTimeDropdown;
 
@@ -30,6 +31,9 @@ namespace ReflecBeatSimulator.UI
 
         /// <summary>Whether the sync-check toggle is on.</summary>
         public bool SyncCheck => _syncCheckToggle != null && _syncCheckToggle.isOn;
+
+        /// <summary>Whether rival note visuals should be hidden.</summary>
+        public bool HideRivalVisuals => _hideRivalToggle != null && _hideRivalToggle.isOn;
 
         /// <summary>The selected approach time in seconds.</summary>
         public double ApproachTime
