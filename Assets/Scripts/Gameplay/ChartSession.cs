@@ -8,6 +8,7 @@ namespace ReflecBeatSimulator.Gameplay
     {
         public static Chart Chart { get; set; }
         public static AudioClip AudioClip { get; set; }
+        public static string ChartPath { get; set; }
         public static bool Autoplay { get; set; }
         public static bool SyncCheck { get; set; }
         public static double ApproachTime { get; set; } = Constants.DefaultApproachTime;
@@ -33,6 +34,7 @@ namespace ReflecBeatSimulator.Gameplay
         {
             Chart = null;
             AudioClip = null;
+            ChartPath = null;
             Autoplay = false;
             SyncCheck = false;
             ApproachTime = Constants.DefaultApproachTime;

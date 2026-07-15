@@ -59,3 +59,25 @@
 - [x] Build `DuelUI` into `GameplayScene` via `M1SceneBuilder`
 - [x] Update docs (`DESIGN.md`, `docs/authoring.md`, `docs/architecture.md`, `README.md`, `PRODUCT.md`) and task trackers
 - [x] Run all EditMode tests in Unity
+
+## M5 — Game feel & visual clarity pass (completed)
+
+- [x] Resize notes and tighten playfield scale
+- [x] Make wall-bounce readable and less uniform
+- [x] Sync-trust harness (autoplay timing report)
+- [x] Calibration discoverability and ±5 ms nudge
+- [x] Note object pooling
+- [x] Approach-time / scroll-speed option
+- [x] Rival object visibility toggle
+- [x] Hit feedback polish (colored flashes, pop effect, larger judgment text)
+- [x] Results clarity (letter grade, colored duel banner)
+
+## M6 — Persistence & session flow (completed)
+
+- [x] Add `SettingsStore` for gameplay options
+- [x] Add `HighScoreStore` for per-chart best results
+- [x] Restore settings in `ChartSelectUI`
+- [x] Save settings on chart selection
+- [x] Show high-score grade/rate in chart-select labels
+- [x] Add Retry / Back buttons to `ResultsUI`
+- [x] Update docs and task trackers

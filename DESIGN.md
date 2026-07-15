@@ -27,6 +27,8 @@ A fan-made, clean-room simulator inspired by Konami's Reflec Beat (2010–2020).
 3. **M2 — Chart format.** JSON loader, BPM changes, remaining note types, chart selection from device storage. Includes an **autoplay mode** (engine judges every note perfectly) — the fastest way to verify a chart's sync by ear with no human in the loop.
 4. **M3 — Authoring.** Documented hand-authoring workflow plus an in-Unity preview `EditorWindow` (`Reflec Beat / Chart Preview`). A `ChartWriter` serializes `Chart` to valid `*.rbchart.json`, `ChartSection` filters notes by time range, and `GameController` reuses the normal playback path to preview any `[start, end)` section with audio. Authoring guide: `docs/authoring.md`.
 5. **M4 — Single-player vs CPU rival.** Optional chart fields mark notes as rival-owned and/or gold. A deterministic CPU rival plays rival notes, the player builds a Just Reflect gauge, and a full gauge can strike back. Non-rival charts are unaffected.
+6. **M5 — Game feel & visual clarity pass.** Polish note sizing/bounce readability, calibration UX, sync verification, object pooling, scroll-speed/rival-visibility options, and hit/results feedback.
+7. **M6 — Persistence & session flow.** Save gameplay settings and per-chart high scores, show bests in chart select, and provide retry/back navigation from results. Keeps the loop tight for repeated play on the target tablet.
 
 Anything not listed above is out of scope until these are done.
 

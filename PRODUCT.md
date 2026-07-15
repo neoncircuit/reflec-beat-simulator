@@ -32,6 +32,12 @@ feeling: **taps land exactly on the beat.** If sync feels off, nothing else matt
 5. **M4 — Single-player vs CPU rival:** optional `rival`/`gold` notes, a
    deterministic CPU rival, Just Reflect gauge, HP bars, and duel outcome. Local
    two-player and online play remain out of scope.
+6. **M5 — Game feel & visual clarity pass:** resize notes, readable wall-bounce
+   motion, calibration nudging, sync-trust harness, object pooling, approach-time
+   / rival-visibility options, and improved hit/results feedback.
+7. **M6 — Persistence & session flow:** save gameplay settings and high scores,
+   surface best results in chart select, and add retry/back navigation from the
+   results screen. Prepares the simulator for repeated play on the target device.
 
 ## Explicit non-features (do not build)
 

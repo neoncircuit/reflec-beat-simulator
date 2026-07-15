@@ -26,6 +26,8 @@ A running list of work items for the Reflec Beat Simulator.
 | 20 | M4: Core duel logic | Completed | `DuelState`, `CpuRival`, `RivalConfig` with EditMode tests. |
 | 21 | M4: Wire duel into gameplay | Completed | `GameController`, `NoteObject`, `PlayfieldRenderer`, `DuelUI`, `ResultsUI`, `M1SceneBuilder`. |
 | 22 | M4: Documentation + task updates | Completed | `DESIGN.md`, `docs/authoring.md`, `docs/architecture.md`, `README.md`, `PRODUCT.md`, `tasks/*.md`. |
+| 23 | M5: Game feel + visual clarity pass | Completed | Resize notes, bounce readability, calibration nudge, sync harness, pooling, approach-time/rival-visibility options, hit/results feedback. |
+| 24 | M6: Settings persistence + high scores | Completed | `SettingsStore`, `HighScoreStore`, settings restore/save, high-score labels, results navigation. |
 | 23 | M4: Run EditMode tests in Unity | Completed | All EditMode tests pass, including `DuelStateTests` and `CpuRivalTests`. |
 
 ## Legend

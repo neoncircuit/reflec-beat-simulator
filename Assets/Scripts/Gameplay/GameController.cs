@@ -527,6 +527,7 @@ namespace ReflecBeatSimulator.Gameplay
                 _activeNotes.Clear();
                 _notePool?.Clear();
 
+                SaveHighScore();
                 _resultsUI?.Show(_score, outcome, _syncReport);
                 return;
             }
@@ -549,7 +550,16 @@ namespace ReflecBeatSimulator.Gameplay
             _activeNotes.Clear();
             _notePool?.Clear();
 
+            SaveHighScore();
             _resultsUI?.Show(_score, null, _syncReport);
+        }
+
+        private void SaveHighScore()
+        {
+            if (ChartSession.IsPreview || _autoplay)
+                return;
+
+            HighScoreStore.SaveIfBetter(ChartSession.ChartPath, _score);
         }
 
         private double ToSongTime(double dspTime)

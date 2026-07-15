@@ -150,7 +150,15 @@ Discovers chart folders under `Application.persistentDataPath/charts/` that cont
 
 ### `ChartSelectController.cs` + `ChartSelectUI.cs`
 
-Populate the chart-select screen with one button per discovered chart, plus an autoplay toggle. On selection, the controller loads the chart/audio into `ChartSession` and loads `GameplayScene`.
+Populate the chart-select screen with one button per discovered chart, plus toggles for autoplay, sync check, and rival-visibility, and an approach-time dropdown. On selection, the controller persists the current options via `SettingsStore`, loads the chart/audio into `ChartSession`, and loads `GameplayScene`. Chart labels include the stored best grade and achievement rate from `HighScoreStore`.
+
+### `SettingsStore.cs`
+
+Persists user-facing gameplay settings (approach time, hide rival visuals, autoplay, sync check) to a JSON file under `Application.persistentDataPath`. Loaded by `ChartSelectUI` on startup and saved when a chart is selected.
+
+### `HighScoreStore.cs`
+
+Persists the best result for each chart to a JSON file under `Application.persistentDataPath`. Saves a result only when it beats the existing entry by achievement rate or, on a tie, by max combo. Used to annotate chart-select labels and can be surfaced on the results screen.
 
 ### `CalibrationController.cs` + `CalibrationUI.cs`
 
@@ -164,7 +172,7 @@ Updates score, combo, and judgment text during gameplay.
 
 ### `ResultsUI.cs`
 
-Displays the final score, max combo, and achievement rate when a chart finishes. In duel mode it also shows the WIN / LOSE / DRAW outcome.
+Displays the final grade, score, max combo, and achievement rate when a chart finishes. In duel mode it also shows a colored WIN / LOSE / DRAW outcome. Provides Retry (reloads `GameplayScene`) and Back (returns to `ChartSelectScene`) buttons so the player can keep the loop tight.
 
 ### `DuelUI.cs`
 

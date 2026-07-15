@@ -54,9 +54,43 @@ namespace ReflecBeatSimulator.UI
         private void Start()
         {
             InitializeApproachTimeDropdown();
+            ApplySettings(SettingsStore.Load());
 
             if (_calibrateButton != null)
                 _calibrateButton.onClick.AddListener(() => OnCalibrate?.Invoke());
+        }
+
+        /// <summary>Applies stored settings to the UI controls.</summary>
+        public void ApplySettings(SettingsStore.GameSettings settings)
+        {
+            if (settings == null)
+                return;
+
+            if (_autoplayToggle != null)
+                _autoplayToggle.isOn = settings.autoplay;
+
+            if (_syncCheckToggle != null)
+                _syncCheckToggle.isOn = settings.syncCheck;
+
+            if (_hideRivalToggle != null)
+                _hideRivalToggle.isOn = settings.hideRivalVisuals;
+
+            SetApproachTimeDropdown(settings.approachTimeSec);
+        }
+
+        private void SetApproachTimeDropdown(double approachTimeSec)
+        {
+            if (_approachTimeDropdown == null)
+                return;
+
+            for (int i = 0; i < Constants.ApproachTimeOptions.Count; i++)
+            {
+                if (Math.Abs(Constants.ApproachTimeOptions[i] - approachTimeSec) < 1e-6)
+                {
+                    _approachTimeDropdown.value = i;
+                    return;
+                }
+            }
         }
 
         private void InitializeApproachTimeDropdown()

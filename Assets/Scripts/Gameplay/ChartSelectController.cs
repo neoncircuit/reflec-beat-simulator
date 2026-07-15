@@ -102,7 +102,13 @@ namespace ReflecBeatSimulator.UI
             {
                 string json = File.ReadAllText(chartPath);
                 Chart chart = ChartParser.Parse(json);
-                return $"{chart.Meta.Title} - {chart.Meta.Artist} [{chart.Meta.Difficulty} {chart.Meta.Level}]";
+                string label = $"{chart.Meta.Title} - {chart.Meta.Artist} [{chart.Meta.Difficulty} {chart.Meta.Level}]";
+
+                var best = HighScoreStore.LoadBest(directory);
+                if (best != null)
+                    label += $"  |  Best: {best.grade} {best.achievementRate:F2}%";
+
+                return label;
             }
             catch (System.Exception ex)
             {
@@ -140,10 +146,20 @@ namespace ReflecBeatSimulator.UI
                 var (chart, audio) = await ChartLoader.LoadAsync(directory, _loadCts.Token);
                 ChartSession.Chart = chart;
                 ChartSession.AudioClip = audio;
+                ChartSession.ChartPath = directory;
                 ChartSession.Autoplay = _ui != null && _ui.Autoplay;
                 ChartSession.SyncCheck = _ui != null && _ui.SyncCheck;
                 ChartSession.HideRivalVisuals = _ui != null && _ui.HideRivalVisuals;
                 ChartSession.ApproachTime = _ui != null ? _ui.ApproachTime : Constants.DefaultApproachTime;
+
+                SettingsStore.Save(new SettingsStore.GameSettings
+                {
+                    approachTimeSec = ChartSession.ApproachTime,
+                    hideRivalVisuals = ChartSession.HideRivalVisuals,
+                    autoplay = ChartSession.Autoplay,
+                    syncCheck = ChartSession.SyncCheck
+                });
+
                 SceneManager.LoadScene("GameplayScene");
             }
             catch (System.OperationCanceledException)
