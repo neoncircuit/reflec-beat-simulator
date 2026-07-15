@@ -94,6 +94,12 @@ namespace ReflecBeatSimulator.Gameplay
             new TimingConverter(_chart.Timing).ApplyTimes(_chart.Notes);
             _sessionNotes = _chart.Notes;
 
+            _approachTime = ChartSession.IsPreview
+                ? Constants.DefaultApproachTime
+                : ChartSession.ApproachTime;
+            if (_approachTime <= 0.0)
+                _approachTime = Constants.DefaultApproachTime;
+
             if (ChartSession.IsPreview)
             {
                 double previewStart = ChartSession.PreviewStartSec;

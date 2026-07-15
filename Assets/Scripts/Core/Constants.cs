@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ReflecBeatSimulator.Core
 {
     /// <summary>Central constants used by Core, Audio, Gameplay, and UI.</summary>
@@ -17,6 +19,12 @@ namespace ReflecBeatSimulator.Core
 
         /// <summary>Default note approach time in seconds.</summary>
         public const double DefaultApproachTime = 1.0;
+
+        /// <summary>
+        /// Available approach-time presets, in seconds. Smaller values make notes
+        /// scroll faster; larger values make them scroll slower.
+        /// </summary>
+        public static readonly IReadOnlyList<double> ApproachTimeOptions = new[] { 0.75, 1.0, 1.5, 2.0 };
 
         /// <summary>
         /// Half-width of a tap note's judgment region on the normalized judgment line (0.0–1.0).

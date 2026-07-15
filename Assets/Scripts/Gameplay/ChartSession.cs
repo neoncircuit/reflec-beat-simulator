@@ -10,6 +10,7 @@ namespace ReflecBeatSimulator.Gameplay
         public static AudioClip AudioClip { get; set; }
         public static bool Autoplay { get; set; }
         public static bool SyncCheck { get; set; }
+        public static double ApproachTime { get; set; } = Constants.DefaultApproachTime;
 
         public static bool IsPreview { get; set; }
         public static double PreviewStartSec { get; set; }
@@ -33,6 +34,7 @@ namespace ReflecBeatSimulator.Gameplay
             AudioClip = null;
             Autoplay = false;
             SyncCheck = false;
+            ApproachTime = Constants.DefaultApproachTime;
             IsPreview = false;
             PreviewStartSec = 0.0;
             PreviewEndSec = 0.0;

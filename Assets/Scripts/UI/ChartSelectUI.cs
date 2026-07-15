@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ReflecBeatSimulator.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,7 @@ namespace ReflecBeatSimulator.UI
         [SerializeField] private Toggle _autoplayToggle;
         [SerializeField] private Toggle _syncCheckToggle;
         [SerializeField] private Button _calibrateButton;
+        [SerializeField] private Dropdown _approachTimeDropdown;
 
         private readonly List<GameObject> _buttons = new List<GameObject>();
 
@@ -29,10 +31,53 @@ namespace ReflecBeatSimulator.UI
         /// <summary>Whether the sync-check toggle is on.</summary>
         public bool SyncCheck => _syncCheckToggle != null && _syncCheckToggle.isOn;
 
+        /// <summary>The selected approach time in seconds.</summary>
+        public double ApproachTime
+        {
+            get
+            {
+                if (_approachTimeDropdown == null)
+                    return Constants.DefaultApproachTime;
+
+                int index = _approachTimeDropdown.value;
+                if (index < 0 || index >= Constants.ApproachTimeOptions.Count)
+                    return Constants.DefaultApproachTime;
+
+                return Constants.ApproachTimeOptions[index];
+            }
+        }
+
         private void Start()
         {
+            InitializeApproachTimeDropdown();
+
             if (_calibrateButton != null)
                 _calibrateButton.onClick.AddListener(() => OnCalibrate?.Invoke());
+        }
+
+        private void InitializeApproachTimeDropdown()
+        {
+            if (_approachTimeDropdown == null)
+                return;
+
+            _approachTimeDropdown.ClearOptions();
+            var options = new List<Dropdown.OptionData>();
+            foreach (double time in Constants.ApproachTimeOptions)
+                options.Add(new Dropdown.OptionData($"{time:0.00}s"));
+
+            _approachTimeDropdown.AddOptions(options);
+
+            int defaultIndex = 0;
+            for (int i = 0; i < Constants.ApproachTimeOptions.Count; i++)
+            {
+                if (Math.Abs(Constants.ApproachTimeOptions[i] - Constants.DefaultApproachTime) < 1e-6)
+                {
+                    defaultIndex = i;
+                    break;
+                }
+            }
+
+            _approachTimeDropdown.value = defaultIndex;
         }
 
         public void SetTitle(string title)
