@@ -135,6 +135,7 @@ namespace ReflecBeatSimulator.UI
                 ChartSession.Chart = chart;
                 ChartSession.AudioClip = audio;
                 ChartSession.Autoplay = _ui != null && _ui.Autoplay;
+                ChartSession.SyncCheck = _ui != null && _ui.SyncCheck;
                 SceneManager.LoadScene("GameplayScene");
             }
             catch (System.OperationCanceledException)

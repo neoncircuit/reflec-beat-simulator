@@ -61,6 +61,20 @@ namespace ReflecBeatSimulator.Tests.EditMode
         }
 
         [Test]
+        public void Tick_ReportsLastDrift()
+        {
+            double dsp = 100.0;
+            var clock = new SongClock(100.0, 0.0, () => dsp);
+
+            clock.Tick(0.0);
+            Assert.That(clock.LastDrift, Is.EqualTo(0.0).Within(1e-9));
+
+            dsp += 0.005;
+            clock.Tick(0.01);
+            Assert.That(clock.LastDrift, Is.GreaterThan(0.0));
+        }
+
+        [Test]
         public void Tick_ConvergesToDspTime()
         {
             double dsp = 0.0;

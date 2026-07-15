@@ -39,6 +39,8 @@ namespace ReflecBeatSimulator.Gameplay
         private double _audioOffsetSec;
         private double _inputOffsetSec;
         private bool _autoplay;
+        private bool _syncCheck;
+        private SyncReport _syncReport;
 
         private List<Note> _sessionNotes;
         private bool _isDuel;
@@ -81,6 +83,13 @@ namespace ReflecBeatSimulator.Gameplay
             }
 
             _autoplay = ChartSession.Autoplay;
+            _syncCheck = ChartSession.SyncCheck;
+            if (_syncCheck)
+            {
+                _autoplay = true;
+                _syncReport = new SyncReport();
+            }
+
             new TimingConverter(_chart.Timing).ApplyTimes(_chart.Notes);
             _sessionNotes = _chart.Notes;
 
@@ -154,6 +163,9 @@ namespace ReflecBeatSimulator.Gameplay
                 return;
 
             double songTime = _songClock.Tick(Time.unscaledTimeAsDouble);
+            if (_syncReport != null)
+                _syncReport.RecordClockDriftMs(Math.Abs(_songClock.LastDrift) * 1000.0);
+
             SpawnNotes(songTime);
             UpdateNotePositions(songTime);
 
@@ -366,6 +378,12 @@ namespace ReflecBeatSimulator.Gameplay
 
                 int syntheticTouchId = _nextSyntheticTouchId--;
                 double dsp = ToDspTime(note.TimeSec);
+                if (_syncReport != null)
+                {
+                    double deltaMs = Math.Abs(AudioSettings.dspTime - dsp) * 1000.0;
+                    _syncReport.RecordTimingDeltaMs(deltaMs);
+                }
+
                 HandleTouchBegan(new TouchData(syntheticTouchId, GetVisualX(note), dsp));
                 _autoplayDownSent.Add(note);
 
@@ -419,6 +437,10 @@ namespace ReflecBeatSimulator.Gameplay
         {
             if (!_judgedNotes.Add(note))
                 return;
+
+            _syncReport?.RecordJudged();
+            if (grade == Judgment.Miss)
+                _syncReport?.RecordMiss();
 
             _score.Apply(grade);
             if (_isDuel && !note.IsRival)
@@ -495,7 +517,7 @@ namespace ReflecBeatSimulator.Gameplay
                 }
                 _activeNotes.Clear();
 
-                _resultsUI?.Show(_score, outcome);
+                _resultsUI?.Show(_score, outcome, _syncReport);
                 return;
             }
 
@@ -516,7 +538,7 @@ namespace ReflecBeatSimulator.Gameplay
             }
             _activeNotes.Clear();
 
-            _resultsUI?.Show(_score);
+            _resultsUI?.Show(_score, null, _syncReport);
         }
 
         private double ToSongTime(double dspTime)

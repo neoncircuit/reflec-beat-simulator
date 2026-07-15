@@ -12,6 +12,7 @@ namespace ReflecBeatSimulator.UI
         [SerializeField] private Transform _content;
         [SerializeField] private GameObject _chartButtonPrefab;
         [SerializeField] private Toggle _autoplayToggle;
+        [SerializeField] private Toggle _syncCheckToggle;
 
         private readonly List<GameObject> _buttons = new List<GameObject>();
 
@@ -20,6 +21,9 @@ namespace ReflecBeatSimulator.UI
 
         /// <summary>Whether the autoplay toggle is on.</summary>
         public bool Autoplay => _autoplayToggle != null && _autoplayToggle.isOn;
+
+        /// <summary>Whether the sync-check toggle is on.</summary>
+        public bool SyncCheck => _syncCheckToggle != null && _syncCheckToggle.isOn;
 
         public void SetTitle(string title)
         {

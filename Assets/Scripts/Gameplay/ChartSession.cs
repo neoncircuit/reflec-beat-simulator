@@ -9,6 +9,7 @@ namespace ReflecBeatSimulator.Gameplay
         public static Chart Chart { get; set; }
         public static AudioClip AudioClip { get; set; }
         public static bool Autoplay { get; set; }
+        public static bool SyncCheck { get; set; }
 
         public static bool IsPreview { get; set; }
         public static double PreviewStartSec { get; set; }
@@ -31,6 +32,7 @@ namespace ReflecBeatSimulator.Gameplay
             Chart = null;
             AudioClip = null;
             Autoplay = false;
+            SyncCheck = false;
             IsPreview = false;
             PreviewStartSec = 0.0;
             PreviewEndSec = 0.0;

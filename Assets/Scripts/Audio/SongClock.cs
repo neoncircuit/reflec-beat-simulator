@@ -17,6 +17,13 @@ namespace ReflecBeatSimulator.Audio
         private bool _initialized;
 
         /// <summary>
+        /// The most recent difference between the raw DSP song time and the smoothed
+        /// song time, in seconds. Large values indicate the audio clock is drifting
+        /// away from the game clock.
+        /// </summary>
+        public double LastDrift { get; private set; }
+
+        /// <summary>
         /// Creates a clock tied to the real <see cref="AudioSettings.dspTime"/>.
         /// </summary>
         /// <param name="startDspTime">The dspTime passed to AudioSource.PlayScheduled.</param>
@@ -48,6 +55,7 @@ namespace ReflecBeatSimulator.Audio
                 _initialized = true;
                 _lastUnscaledTime = unscaledTime;
                 _smoothedTime = dspSongTime;
+                LastDrift = 0.0;
                 return _smoothedTime;
             }
 
@@ -59,6 +67,7 @@ namespace ReflecBeatSimulator.Audio
             // Correct 10% of the gap per frame; snap if badly diverged (e.g. app resume).
             double gap = dspSongTime - _smoothedTime;
             _smoothedTime += Math.Abs(gap) > 0.05 ? gap : gap * 0.1;
+            LastDrift = gap;
             return _smoothedTime;
         }
     }
