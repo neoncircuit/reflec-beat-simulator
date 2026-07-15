@@ -13,6 +13,7 @@ namespace ReflecBeatSimulator.UI
 
         private float _judgmentTimer;
         private const float JudgmentDisplayDuration = 0.5f;
+        private const int JudgmentFontSize = 48;
 
         private void Update()
         {
@@ -41,6 +42,8 @@ namespace ReflecBeatSimulator.UI
             _judgmentText.gameObject.SetActive(true);
             _judgmentText.text = grade.ToString().ToUpperInvariant();
             _judgmentText.color = ColorForGrade(grade);
+            _judgmentText.fontSize = JudgmentFontSize;
+            _judgmentText.fontStyle = FontStyle.Bold;
             _judgmentTimer = JudgmentDisplayDuration;
         }
 

@@ -29,8 +29,10 @@ namespace ReflecBeatSimulator.UI
                 return;
 
             string outcomeLine = outcome.HasValue
-                ? $"Duel Result: {outcome.Value}\n"
+                ? $"<size=48><color={ColorForOutcome(outcome.Value)}><b>{outcome.Value.ToString().ToUpperInvariant()}</b></color></size>\n"
                 : string.Empty;
+
+            string gradeLine = $"<size=36><b>Grade {score.Grade}</b></size>\n";
 
             string syncLine = syncReport != null
                 ? $"Sync Check\nMax timing delta: {syncReport.MaxTimingDeltaMs:F2} ms\nMax clock drift: {syncReport.MaxClockDriftMs:F2} ms\nMisses: {syncReport.MissedNotes}\n{(syncReport.IsWithinTarget() ? "WITHIN TARGET" : "OUTSIDE TARGET")}\n\n"
@@ -39,9 +41,23 @@ namespace ReflecBeatSimulator.UI
             _resultText.text =
                 syncLine +
                 outcomeLine +
+                gradeLine +
                 $"Achievement Rate: {score.AchievementRate:F2}%\n" +
                 $"JUST {score.JustCount}  GREAT {score.GreatCount}  GOOD {score.GoodCount}  MISS {score.MissCount}\n" +
                 $"Max Combo: {score.MaxCombo}";
+        }
+
+        private static string ColorForOutcome(DuelOutcome outcome)
+        {
+            switch (outcome)
+            {
+                case DuelOutcome.Win:
+                    return "#00FF00FF";
+                case DuelOutcome.Lose:
+                    return "#FF0000FF";
+                default:
+                    return "#FFFFFFFF";
+            }
         }
     }
 }

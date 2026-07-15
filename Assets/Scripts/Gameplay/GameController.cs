@@ -461,9 +461,9 @@ namespace ReflecBeatSimulator.Gameplay
             if (_playfield != null)
             {
                 if (note.Type == NoteType.Top)
-                    _playfield.FlashTopCircle(note.Zone);
+                    _playfield.FlashTopCircle(note.Zone, grade);
                 else
-                    _playfield.FlashJudgmentLine();
+                    _playfield.FlashJudgmentLine(grade);
             }
 
             SyncDuelUI();

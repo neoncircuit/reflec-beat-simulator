@@ -37,6 +37,9 @@ namespace ReflecBeatSimulator.Core
         /// <summary>Achievement rate from 0.0 to 100.0.</summary>
         public double AchievementRate { get; private set; }
 
+        /// <summary>Letter grade derived from the current achievement rate.</summary>
+        public string Grade { get; private set; } = "E";
+
         /// <summary>Applies a judgment to the running score.</summary>
         public void Apply(Judgment judgment)
         {
@@ -70,6 +73,22 @@ namespace ReflecBeatSimulator.Core
             AchievementRate = _maxPossible > 0
                 ? (_earned / (double)_maxPossible) * 100.0
                 : 100.0;
+
+            Grade = ComputeGrade(AchievementRate);
+        }
+
+        private static string ComputeGrade(double rate)
+        {
+            if (rate >= 100.0) return "SSS";
+            if (rate >= 99.0) return "SS";
+            if (rate >= 98.0) return "S";
+            if (rate >= 95.0) return "AAA";
+            if (rate >= 90.0) return "AA";
+            if (rate >= 85.0) return "A";
+            if (rate >= 80.0) return "B";
+            if (rate >= 70.0) return "C";
+            if (rate >= 60.0) return "D";
+            return "E";
         }
     }
 }

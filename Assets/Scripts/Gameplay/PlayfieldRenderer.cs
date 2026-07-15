@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using ReflecBeatSimulator.Core;
 using UnityEngine;
 
 namespace ReflecBeatSimulator.Gameplay
@@ -92,24 +93,42 @@ namespace ReflecBeatSimulator.Gameplay
             };
         }
 
-        /// <summary>Briefly flashes the main judgment line.</summary>
-        public void FlashJudgmentLine()
+        /// <summary>Briefly flashes the main judgment line with the judgment color.</summary>
+        public void FlashJudgmentLine(Judgment grade)
         {
+            Color flash = ColorForGrade(grade);
             if (_judgmentLineRenderer != null)
-                FlashRenderer(_judgmentLineRenderer, _lineColor, Color.white, 0.1f);
+                FlashRenderer(_judgmentLineRenderer, _lineColor, flash, 0.1f);
             if (_judgmentGlowRenderer != null)
-                FlashRenderer(_judgmentGlowRenderer, _lineGlowColor, new Color(1f, 1f, 1f, 0.5f), 0.1f);
+                FlashRenderer(_judgmentGlowRenderer, _lineGlowColor, new Color(flash.r, flash.g, flash.b, 0.5f), 0.1f);
         }
 
-        /// <summary>Briefly flashes the top target circle for the given zone.</summary>
-        public void FlashTopCircle(int zone)
+        /// <summary>Briefly flashes the top target circle for the given zone with the judgment color.</summary>
+        public void FlashTopCircle(int zone, Judgment grade)
         {
             if (zone < 0 || zone >= _topCircleRenderers.Count)
                 return;
 
             LineRenderer circle = _topCircleRenderers[zone];
             if (circle != null)
-                FlashRenderer(circle, _topCircleColor, _topCircleActiveColor, 0.1f);
+                FlashRenderer(circle, _topCircleColor, ColorForGrade(grade), 0.1f);
+        }
+
+        private static Color ColorForGrade(Judgment grade)
+        {
+            switch (grade)
+            {
+                case Judgment.Just:
+                    return new Color(1f, 0.84f, 0f);
+                case Judgment.Great:
+                    return Color.green;
+                case Judgment.Good:
+                    return Color.cyan;
+                case Judgment.Miss:
+                    return Color.red;
+                default:
+                    return Color.white;
+            }
         }
 
         private Coroutine FlashRenderer(LineRenderer renderer, Color baseColor, Color flashColor, float duration)

@@ -1,3 +1,4 @@
+using System.Collections;
 using ReflecBeatSimulator.Core;
 using UnityEngine;
 
@@ -25,6 +26,10 @@ namespace ReflecBeatSimulator.Gameplay
         private float _bounceDirection = 1f;
         private bool _isRival;
         private bool _baseEnableBounce;
+        private bool _isPlayingEffect;
+
+        private const float HitEffectDuration = 0.12f;
+        private const float HitEffectScale = 1.35f;
 
         public bool IsJudged { get; private set; }
         public bool IsHeld { get; private set; }
@@ -85,14 +90,14 @@ namespace ReflecBeatSimulator.Gameplay
             transform.position = position;
         }
 
-        /// <summary>Marks the note as judged and returns it to the pool (or destroys it if un-pooled).</summary>
+        /// <summary>Marks the note as judged and plays a brief pop effect before returning it to the pool.</summary>
         public void MarkJudged()
         {
-            if (IsJudged)
+            if (IsJudged || _isPlayingEffect)
                 return;
 
             IsJudged = true;
-            ReturnToPool();
+            StartCoroutine(HitEffectCoroutine());
         }
 
         /// <summary>Returns the object to its pool without marking it judged.</summary>
@@ -107,14 +112,36 @@ namespace ReflecBeatSimulator.Gameplay
         /// <summary>Resets runtime state so the object can be reused from the pool.</summary>
         public void ResetState()
         {
+            StopAllCoroutines();
             IsJudged = false;
             IsHeld = false;
+            _isPlayingEffect = false;
         }
 
         /// <summary>Locks the note at the judgment line while a long note is being held.</summary>
         public void MarkHeld()
         {
             IsHeld = true;
+        }
+
+        private IEnumerator HitEffectCoroutine()
+        {
+            _isPlayingEffect = true;
+            Vector3 baseScale = transform.localScale;
+            Vector3 targetScale = baseScale * HitEffectScale;
+            float elapsed = 0f;
+
+            while (elapsed < HitEffectDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = elapsed / HitEffectDuration;
+                transform.localScale = Vector3.Lerp(baseScale, targetScale, Mathf.Sin(t * Mathf.PI));
+                yield return null;
+            }
+
+            transform.localScale = baseScale;
+            _isPlayingEffect = false;
+            ReturnToPool();
         }
 
         private bool IsTopNote()
