@@ -21,7 +21,10 @@ namespace ReflecBeatSimulator.UI
         private void Start()
         {
             if (_ui != null)
+            {
                 _ui.OnChartSelected += OnChartSelected;
+                _ui.OnCalibrate += OnCalibrate;
+            }
 
             if (ContentBootstrapper.IsComplete)
             {
@@ -52,7 +55,10 @@ namespace ReflecBeatSimulator.UI
         private void OnDestroy()
         {
             if (_ui != null)
+            {
                 _ui.OnChartSelected -= OnChartSelected;
+                _ui.OnCalibrate -= OnCalibrate;
+            }
 
             ContentBootstrapper.OnBootstrapComplete -= OnBootstrapComplete;
             ContentBootstrapper.OnBootstrapFailed -= OnBootstrapFailed;
@@ -156,6 +162,12 @@ namespace ReflecBeatSimulator.UI
                 _loadCts?.Dispose();
                 _loadCts = null;
             }
+        }
+
+        private void OnCalibrate()
+        {
+            ChartSession.Clear();
+            SceneManager.LoadScene("CalibrationScene");
         }
     }
 }

@@ -13,17 +13,27 @@ namespace ReflecBeatSimulator.UI
         [SerializeField] private GameObject _chartButtonPrefab;
         [SerializeField] private Toggle _autoplayToggle;
         [SerializeField] private Toggle _syncCheckToggle;
+        [SerializeField] private Button _calibrateButton;
 
         private readonly List<GameObject> _buttons = new List<GameObject>();
 
         /// <summary>Invoked with the chart index when a chart button is pressed.</summary>
         public event Action<int> OnChartSelected;
 
+        /// <summary>Invoked when the Calibrate button is pressed.</summary>
+        public event Action OnCalibrate;
+
         /// <summary>Whether the autoplay toggle is on.</summary>
         public bool Autoplay => _autoplayToggle != null && _autoplayToggle.isOn;
 
         /// <summary>Whether the sync-check toggle is on.</summary>
         public bool SyncCheck => _syncCheckToggle != null && _syncCheckToggle.isOn;
+
+        private void Start()
+        {
+            if (_calibrateButton != null)
+                _calibrateButton.onClick.AddListener(() => OnCalibrate?.Invoke());
+        }
 
         public void SetTitle(string title)
         {

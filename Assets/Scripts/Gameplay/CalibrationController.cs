@@ -50,6 +50,7 @@ namespace ReflecBeatSimulator.Gameplay
         {
             _ui?.SetInstruction("Tap the beat when you hear the click.");
             _ui?.SetDoneVisible(false);
+            RefreshStoredOffset();
             BeginCalibration();
         }
 
@@ -80,6 +81,22 @@ namespace ReflecBeatSimulator.Gameplay
         {
             Debug.Log($"Calibration complete. Stored inputOffsetSec = {CalibrationStore.Load()}");
             SceneManager.LoadScene("ChartSelectScene");
+        }
+
+        /// <summary>
+        /// Nudges the stored input offset by <paramref name="deltaSec"/> without
+        /// requiring a full re-tap. Useful for fine-tuning by ear.
+        /// </summary>
+        public void NudgeOffset(double deltaSec)
+        {
+            double current = CalibrationStore.Load();
+            CalibrationStore.Save(current + deltaSec);
+            RefreshStoredOffset();
+        }
+
+        private void RefreshStoredOffset()
+        {
+            _ui?.SetStoredOffset(CalibrationStore.Load());
         }
 
         private void Update()
