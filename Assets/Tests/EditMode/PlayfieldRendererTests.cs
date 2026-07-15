@@ -77,6 +77,17 @@ namespace ReflecBeatSimulator.Tests
             Object.DestroyImmediate(playfield.gameObject);
         }
 
+        [Test]
+        public void NoteWorldWidth_IsExposed()
+        {
+            PlayfieldRenderer playfield = CreatePlayfield(width: 10f, judgmentLineY: -4f);
+            SetPrivateField(playfield, "_noteWorldWidth", 0.75f);
+
+            Assert.That(playfield.NoteWorldWidth, Is.EqualTo(0.75f).Within(1e-6f));
+
+            Object.DestroyImmediate(playfield.gameObject);
+        }
+
         private static PlayfieldRenderer CreatePlayfield(float width, float judgmentLineY, float spawnY = 5f,
             float topJudgmentLineY = -2.5f, float topSpawnY = 5f)
         {

@@ -21,8 +21,9 @@ namespace ReflecBeatSimulator.Core
         /// <summary>
         /// Half-width of a tap note's judgment region on the normalized judgment line (0.0–1.0).
         /// A touch within this distance of a note's x can judge it.
+        /// Tuned to match the smaller M5 visual note size while staying playable on a tablet.
         /// </summary>
-        public const float TapHitHalfWidth = 0.15f;
+        public const float TapHitHalfWidth = 0.075f;
 
         /// <summary>Number of taps collected during calibration.</summary>
         public const int CalibrationTapCount = 16;

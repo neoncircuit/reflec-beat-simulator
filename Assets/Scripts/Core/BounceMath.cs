@@ -24,6 +24,25 @@ namespace ReflecBeatSimulator.Core
             return PingPong(position, 1f);
         }
 
+        /// <summary>
+        /// Progress-based variant of <see cref="BounceX"/>. The bounce curve is
+        /// expressed as a normalized fraction of the travel, so wall hits land at
+        /// predictable positions regardless of approach time.
+        /// </summary>
+        /// <param name="startX">Starting normalized X in [0, 1].</param>
+        /// <param name="progress">Normalized travel progress from spawn (0) to judgment line (1).</param>
+        /// <param name="wallHits">Number of wall collisions during the travel.</param>
+        /// <param name="direction">Direction multiplier: 1f moves right first, -1f moves left first.</param>
+        /// <returns>Bounced normalized X in [0, 1].</returns>
+        public static float BounceX(float startX, float progress, int wallHits, float direction = 1f)
+        {
+            if (wallHits <= 0)
+                return startX;
+
+            float position = startX + direction * wallHits * Clamp01(progress);
+            return PingPong(position, 1f);
+        }
+
         /// <summary>Ping-pongs a value between 0 and length, reflecting at each boundary.</summary>
         public static float PingPong(float value, float length)
         {

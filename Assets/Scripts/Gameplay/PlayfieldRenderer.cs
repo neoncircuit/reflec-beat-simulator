@@ -11,7 +11,7 @@ namespace ReflecBeatSimulator.Gameplay
         [SerializeField] private float _width = 10f;
         [SerializeField] private float _judgmentLineY = -4f;
         [SerializeField] private float _spawnY = 5f;
-        [SerializeField] private float _noteScale = 1f;
+        [SerializeField] private float _noteWorldWidth = 0.75f;
 
         [Header("Top Targets")]
         [SerializeField] private float _topJudgmentLineY = -2.5f;
@@ -29,7 +29,7 @@ namespace ReflecBeatSimulator.Gameplay
 
         public float JudgmentLineY => _judgmentLineY;
         public float TopJudgmentLineY => _topJudgmentLineY;
-        public float NoteScale => _noteScale;
+        public float NoteWorldWidth => _noteWorldWidth;
         public float Width => _width;
 
         private readonly List<LineRenderer> _topCircleRenderers = new List<LineRenderer>();

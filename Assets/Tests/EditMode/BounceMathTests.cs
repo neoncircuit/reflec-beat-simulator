@@ -79,6 +79,37 @@ namespace ReflecBeatSimulator.Tests
         }
 
         [Test]
+        public void BounceX_ProgressOverload_MatchesElapsedForm()
+        {
+            // progress=1 corresponds to elapsed=duration, so the result should match.
+            float elapsedResult = BounceMath.BounceX(0.2f, 1f, 1f, 3, -1f);
+            float progressResult = BounceMath.BounceX(0.2f, 1f, 3, -1f);
+            Assert.That(progressResult, Is.EqualTo(elapsedResult).Within(1e-6f));
+        }
+
+        [Test]
+        public void BounceX_ProgressOverload_StaysWithinBounds()
+        {
+            for (int i = 0; i <= 20; i++)
+            {
+                float progress = i / 20f;
+                float x = BounceMath.BounceX(0.15f, progress, 4);
+                Assert.That(x, Is.GreaterThanOrEqualTo(-1e-6f));
+                Assert.That(x, Is.LessThanOrEqualTo(1f + 1e-6f));
+            }
+        }
+
+        [Test]
+        public void BounceX_ProgressOverload_HitsWallsAtPredictableProgress()
+        {
+            // startX=0.2, wallHits=2, direction=1 -> first wall at right when progress = (1 - 0.2) / 2 = 0.4.
+            Assert.That(BounceMath.BounceX(0.2f, 0.4f, 2), Is.EqualTo(1f).Within(1e-6f));
+
+            // Same setup -> second wall at left when progress = (2 - 0.2) / 2 = 0.9.
+            Assert.That(BounceMath.BounceX(0.2f, 0.9f, 2), Is.EqualTo(0f).Within(1e-6f));
+        }
+
+        [Test]
         public void PingPong_BouncesBetweenZeroAndLength()
         {
             Assert.That(BounceMath.PingPong(0.25f, 1f), Is.EqualTo(0.25f).Within(1e-6f));

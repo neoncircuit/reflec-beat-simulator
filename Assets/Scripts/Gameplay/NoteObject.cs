@@ -6,9 +6,16 @@ namespace ReflecBeatSimulator.Gameplay
     /// <summary>Visual representation of a single chart note. Position is driven by song time.</summary>
     public sealed class NoteObject : MonoBehaviour
     {
+        private const float DefaultSpriteWidth = 1.28f;
+
+        private static readonly Color LeftFirstColor = new Color(0.35f, 0.75f, 1f, 1f);
+        private static readonly Color RightFirstColor = new Color(1f, 0.6f, 0.2f, 1f);
+
         [Header("Bounce (visual-only)")]
         [SerializeField] private bool _enableBounce = true;
         [SerializeField] private int _wallHits = 2;
+        [SerializeField] private float _spriteWidth = DefaultSpriteWidth;
+        [SerializeField] private Transform _directionIndicator;
 
         private Note _note;
         private PlayfieldRenderer _playfield;
@@ -31,8 +38,9 @@ namespace ReflecBeatSimulator.Gameplay
             _visualX = visualX;
             _bounceDirection = visualX < 0.5f ? 1f : -1f;
             _enableBounce = _enableBounce && !_isRival;
-            transform.localScale = Vector3.one * _playfield.NoteScale;
+            transform.localScale = Vector3.one * (_playfield.NoteWorldWidth / _spriteWidth);
             ApplyTint(note);
+            ApplyDirectionVisuals();
         }
 
         /// <summary>Updates position based on the current song time. Call from GameController.Update.</summary>
@@ -56,8 +64,8 @@ namespace ReflecBeatSimulator.Gameplay
 
             if (ShouldBounce())
             {
-                float elapsed = (float)(_approachTime - t * _approachTime);
-                float bouncedX = BounceMath.BounceX(_visualX, elapsed, (float)_approachTime, _wallHits, _bounceDirection);
+                float progress = 1f - (float)t;
+                float bouncedX = BounceMath.BounceX(_visualX, progress, _wallHits, _bounceDirection);
                 position.x = _playfield.GetWorldPosition(bouncedX).x;
             }
 
@@ -95,6 +103,24 @@ namespace ReflecBeatSimulator.Gameplay
                 renderer.color = Color.yellow;
             else if (note.IsRival)
                 renderer.color = new Color(1f, 0.3f, 0.3f);
+        }
+
+        private void ApplyDirectionVisuals()
+        {
+            if (!ShouldBounce())
+                return;
+
+            if (_directionIndicator != null)
+                _directionIndicator.localScale = new Vector3(_bounceDirection, 1f, 1f);
+
+            if (_note == null || _note.IsGold || _note.IsRival)
+                return;
+
+            SpriteRenderer renderer = GetComponentInChildren<SpriteRenderer>();
+            if (renderer == null)
+                return;
+
+            renderer.color = _bounceDirection > 0f ? LeftFirstColor : RightFirstColor;
         }
 
         private bool ShouldBounce()
