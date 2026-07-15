@@ -59,6 +59,29 @@ namespace ReflecBeatSimulator.Tests
         }
 
         [Test]
+        public void ApplyTimes_SetsLongNoteEndTimeSec()
+        {
+            var timing = new ChartTiming
+            {
+                Ppq = 480,
+                BpmChanges = new List<BpmChange>
+                {
+                    new BpmChange { Tick = 0, Bpm = 120 }
+                }
+            };
+            var notes = new List<Note>
+            {
+                new Note { Tick = 960, Type = NoteType.Long, DurationTicks = 480 }
+            };
+
+            new TimingConverter(timing).ApplyTimes(notes);
+
+            Assert.That(notes[0].TimeSec, Is.EqualTo(1.0).Within(1e-9));
+            Assert.That(notes[0].EndTick, Is.EqualTo(1440));
+            Assert.That(notes[0].EndTimeSec, Is.EqualTo(1.5).Within(1e-9));
+        }
+
+        [Test]
         public void UnsortedBpmChanges_GetsSorted()
         {
             var changes = new List<BpmChange>

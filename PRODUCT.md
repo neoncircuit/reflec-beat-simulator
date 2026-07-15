@@ -29,10 +29,13 @@ feeling: **taps land exactly on the beat.** If sync feels off, nothing else matt
    all note types (long, vertical, top, bigbang); BPM changes.
 4. **M3 — Authoring:** a workflow for creating charts (editor or documented
    hand-authoring).
+5. **M4 — Single-player vs CPU rival:** optional `rival`/`gold` notes, a
+   deterministic CPU rival, Just Reflect gauge, HP bars, and duel outcome. Local
+   two-player and online play remain out of scope.
 
 ## Explicit non-features (do not build)
 
-- Online play, versus mode, the opponent "reflect" mechanic
+- Local two-player or online play (M4 is single-player versus a CPU rival only)
 - Accounts, profiles, unlocks, or any progression system
 - Themes, skins, or visual polish before M1 is complete
 - Any converter or importer for Konami's proprietary data

@@ -60,8 +60,38 @@ namespace ReflecBeatSimulator.Core
 
         private static bool CanMatchType(string type)
         {
-            // M1 supports tap only; M2 will extend the remaining types.
-            return type == NoteType.Tap;
+            return type == NoteType.Tap ||
+                   type == NoteType.Long ||
+                   type == NoteType.Vertical ||
+                   type == NoteType.Top ||
+                   type == NoteType.BigBang;
+        }
+
+        /// <summary>Returns the worse of two grades, where MISS is worst and JUST is best.</summary>
+        public static Judgment Worse(Judgment a, Judgment b)
+        {
+            return Rank(a) > Rank(b) ? a : b;
+        }
+
+        private static int Rank(Judgment grade)
+        {
+            switch (grade)
+            {
+                case Judgment.Just: return 0;
+                case Judgment.Great: return 1;
+                case Judgment.Good: return 2;
+                case Judgment.Miss: return 3;
+                default: return 3;
+            }
+        }
+
+        /// <summary>Grades a long-note release. The caller combines this with the head grade via <see cref="Worse"/>.</summary>
+        public static Judgment JudgeRelease(double releaseTime, Note note)
+        {
+            if (note.Type != NoteType.Long)
+                throw new ArgumentException("Release grading only applies to long notes.", nameof(note));
+
+            return Grade(Math.Abs(releaseTime - note.EndTimeSec));
         }
 
         private static bool IsInSpatialWindow(Note note, double touchX)

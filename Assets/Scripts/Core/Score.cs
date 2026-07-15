@@ -15,6 +15,9 @@ namespace ReflecBeatSimulator.Core
 
             TotalNotes = totalNotes;
             _maxPossible = totalNotes * 100;
+
+            if (totalNotes == 0)
+                AchievementRate = 100.0;
         }
 
         /// <summary>Total number of notes in the chart.</summary>

@@ -4,6 +4,7 @@ using ReflecBeatSimulator.Audio;
 using ReflecBeatSimulator.Core;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.SceneManagement;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 namespace ReflecBeatSimulator.Gameplay
@@ -29,13 +30,20 @@ namespace ReflecBeatSimulator.Gameplay
         private void OnEnable()
         {
             EnhancedTouchSupport.Enable();
+#if UNITY_EDITOR
+            TouchSimulation.Enable();
+#endif
             Touch.onFingerDown += OnFingerDown;
         }
 
         private void OnDisable()
         {
             Touch.onFingerDown -= OnFingerDown;
+            StopCalibrationAudio();
             EnhancedTouchSupport.Disable();
+#if UNITY_EDITOR
+            TouchSimulation.Disable();
+#endif
         }
 
         private void Start()
@@ -48,9 +56,13 @@ namespace ReflecBeatSimulator.Gameplay
         /// <summary>Starts or restarts the calibration sequence.</summary>
         public void BeginCalibration()
         {
+            StopCalibrationAudio();
+
             _deltas.Clear();
             _running = true;
-            _startDspTime = AudioPlayback.Schedule(_audioSource, _tickClip, 0.5);
+            // The metronome schedules every click, so only compute the start time here
+            // to avoid double-scheduling the first beat.
+            _startDspTime = AudioSettings.dspTime + 0.5;
             _songClock = new SongClock(_startDspTime, 0.0);
             _metronome = new Metronome(_audioSource, _tickClip, _bpm, _startDspTime, Constants.CalibrationTapCount);
             _metronome.BeatScheduled += OnBeatScheduled;
@@ -67,6 +79,7 @@ namespace ReflecBeatSimulator.Gameplay
         public void Done()
         {
             Debug.Log($"Calibration complete. Stored inputOffsetSec = {CalibrationStore.Load()}");
+            SceneManager.LoadScene("ChartSelectScene");
         }
 
         private void Update()
@@ -91,10 +104,14 @@ namespace ReflecBeatSimulator.Gameplay
 
         private void OnFingerDown(Finger finger)
         {
+            RecordTap(AudioSettings.dspTime);
+        }
+
+        private void RecordTap(double tapDsp)
+        {
             if (!_running || _deltas.Count >= Constants.CalibrationTapCount)
                 return;
 
-            double tapDsp = AudioSettings.dspTime;
             double secondsPerBeat = 60.0 / _bpm;
             double elapsed = tapDsp - _startDspTime;
             int nearestBeat = (int)Math.Round(elapsed / secondsPerBeat);
@@ -103,6 +120,7 @@ namespace ReflecBeatSimulator.Gameplay
 
             _deltas.Add(delta);
             _ui?.SetLastDelta(delta);
+            Debug.Log($"Calibration tap #{_deltas.Count}: delta = {delta * 1000.0:F1} ms");
 
             if (_deltas.Count >= Constants.CalibrationTapCount)
             {
@@ -113,6 +131,8 @@ namespace ReflecBeatSimulator.Gameplay
 
         private void FinishCalibration()
         {
+            StopCalibrationAudio();
+
             double sum = 0.0;
             foreach (double d in _deltas)
                 sum += d;
@@ -125,6 +145,17 @@ namespace ReflecBeatSimulator.Gameplay
             _ui?.SetDoneVisible(true);
 
             Debug.Log($"Calibration finished. Average delta: {average:F4} s");
+        }
+
+        private void StopCalibrationAudio()
+        {
+            // Cancel any clicks that were scheduled but have not played yet.
+            _audioSource?.Stop();
+            if (_metronome != null)
+            {
+                _metronome.BeatScheduled -= OnBeatScheduled;
+                _metronome = null;
+            }
         }
     }
 }

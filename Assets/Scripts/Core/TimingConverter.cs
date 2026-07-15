@@ -71,14 +71,22 @@ namespace ReflecBeatSimulator.Core
             return time;
         }
 
-        /// <summary>Computes and assigns <see cref="Note.TimeSec"/> for every note.</summary>
+        /// <summary>Computes and assigns absolute seconds for every note, including long-note tails.</summary>
         public void ApplyTimes(IList<Note> notes)
         {
             if (notes == null)
                 return;
 
             foreach (var note in notes)
+            {
                 note.TimeSec = TickToSeconds(note.Tick);
+
+                if (note.Type == NoteType.Long)
+                {
+                    note.EndTick = note.Tick + note.DurationTicks;
+                    note.EndTimeSec = TickToSeconds(note.EndTick);
+                }
+            }
         }
 
         private double SegmentSeconds(int fromTick, int toTick, double bpm)

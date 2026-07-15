@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "meta": {
+    "title": "M2 Demo",
+    "artist": "Original",
+    "charter": "simulator",
+    "audioFile": "PlaceholderBeat.wav",
+    "difficulty": "EASY",
+    "level": 1
+  },
+  "timing": {
+    "ppq": 480,
+    "audioOffsetMs": 0,
+    "bpmChanges": [
+      { "tick": 0, "bpm": 120 }
+    ]
+  },
+  "notes": [
+    { "tick": 960, "type": "tap", "x": 0.25 },
+    { "tick": 1440, "type": "tap", "x": 0.42 },
+    { "tick": 1920, "type": "tap", "x": 0.58 },
+    { "tick": 2400, "type": "tap", "x": 0.75 },
+    { "tick": 2880, "type": "long", "x": 0.33, "durationTicks": 960 },
+    { "tick": 3840, "type": "vertical", "x": 0.66 },
+    { "tick": 4320, "type": "top", "zone": 0 },
+    { "tick": 4800, "type": "top", "zone": 2 },
+    { "tick": 5280, "type": "bigbang" },
+    { "tick": 5760, "type": "tap", "x": 0.5 },
+    { "tick": 6240, "type": "tap", "x": 0.2 },
+    { "tick": 6720, "type": "tap", "x": 0.8 }
+  ]
+}

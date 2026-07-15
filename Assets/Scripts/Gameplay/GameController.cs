@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ReflecBeatSimulator.Audio;
 using ReflecBeatSimulator.Core;
 using ReflecBeatSimulator.UI;
@@ -6,7 +7,7 @@ using UnityEngine;
 
 namespace ReflecBeatSimulator.Gameplay
 {
-    /// <summary>Drives the M1 gameplay loop: spawn notes, judge touches, track score, finish.</summary>
+    /// <summary>Drives the gameplay loop: spawn notes, judge touches, track score, finish.</summary>
     public sealed class GameController : MonoBehaviour
     {
         [Header("Audio")]
@@ -17,10 +18,15 @@ namespace ReflecBeatSimulator.Gameplay
         [SerializeField] private PlayfieldRenderer _playfield;
         [SerializeField] private TouchInput _touchInput;
         [SerializeField] private GameObject _tapNotePrefab;
+        [SerializeField] private GameObject _longNotePrefab;
+        [SerializeField] private GameObject _verticalNotePrefab;
+        [SerializeField] private GameObject _topNotePrefab;
+        [SerializeField] private GameObject _bigBangNotePrefab;
 
         [Header("UI")]
         [SerializeField] private GameplayUI _gameplayUI;
         [SerializeField] private ResultsUI _resultsUI;
+        [SerializeField] private DuelUI _duelUI;
 
         [Header("Timing")]
         [SerializeField] private double _approachTime = Constants.DefaultApproachTime;
@@ -32,33 +38,103 @@ namespace ReflecBeatSimulator.Gameplay
         private double _startDspTime;
         private double _audioOffsetSec;
         private double _inputOffsetSec;
+        private bool _autoplay;
+
+        private List<Note> _sessionNotes;
+        private bool _isDuel;
+        private DuelState _duelState;
+        private CpuRival _cpuRival;
 
         private readonly List<NoteObject> _activeNotes = new List<NoteObject>();
         private readonly HashSet<Note> _judgedNotes = new HashSet<Note>();
         private readonly HashSet<Note> _spawnedNotes = new HashSet<Note>();
+
+        private readonly Dictionary<int, (NoteObject noteObject, Note note, Judgment headGrade)> _heldLongNotes =
+            new Dictionary<int, (NoteObject, Note, Judgment)>();
+
+        private readonly HashSet<Note> _heldLongNotesByNote = new HashSet<Note>();
+        private readonly HashSet<Note> _autoplayDownSent = new HashSet<Note>();
+        private readonly Dictionary<Note, int> _autoplayLongTouchIds = new Dictionary<Note, int>();
+        private int _nextSyntheticTouchId = -1;
 
         private bool _started;
         private bool _finished;
 
         private void Start()
         {
-            if (_audioSource == null || _audioClip == null)
+            if (_audioSource == null)
             {
-                Debug.LogError("GameController: AudioSource or AudioClip is not assigned.");
+                Debug.LogError("GameController: AudioSource is not assigned.");
                 enabled = false;
                 return;
             }
 
-            _chart = BuildDemoChart();
+            _chart = ChartSession.HasChart ? ChartSession.Chart : BuildDemoChart();
+            if (ChartSession.AudioClip != null)
+                _audioClip = ChartSession.AudioClip;
+
+            if (_audioClip == null)
+            {
+                Debug.LogError("GameController: No audio clip assigned or selected in ChartSession.");
+                enabled = false;
+                return;
+            }
+
+            _autoplay = ChartSession.Autoplay;
             new TimingConverter(_chart.Timing).ApplyTimes(_chart.Notes);
-            _score = new Score(_chart.Notes.Count);
+            _sessionNotes = _chart.Notes;
+
+            if (ChartSession.IsPreview)
+            {
+                double previewStart = ChartSession.PreviewStartSec;
+                double previewEnd = ChartSession.PreviewEndSec;
+                if (previewStart >= previewEnd)
+                {
+                    Debug.LogError($"GameController: Invalid preview range [{previewStart}, {previewEnd}).");
+                    enabled = false;
+                    return;
+                }
+
+                _sessionNotes = ChartSection.GetNotesInRange(_chart.Notes, previewStart, previewEnd);
+                _autoplay = true;
+            }
+
+            _isDuel = !ChartSession.IsPreview && HasRivalNotes(_sessionNotes);
+            int scoreableNotes = _isDuel ? CountPlayerNotes(_sessionNotes) : _sessionNotes.Count;
+            _score = new Score(scoreableNotes);
 
             if (_touchInput != null)
+            {
                 _touchInput.OnTouchBegan += HandleTouchBegan;
+                _touchInput.OnTouchEnded += HandleTouchEnded;
+            }
+
+            if (_isDuel)
+            {
+                RivalConfig rivalConfig = _chart.Rival ?? RivalConfig.Default;
+                _duelState = new DuelState(rivalConfig);
+                _cpuRival = new CpuRival(_sessionNotes, rivalConfig);
+                _duelUI?.Initialize(
+                    _duelState.PlayerHp, _duelState.MaxPlayerHp,
+                    _duelState.RivalHp, _duelState.MaxRivalHp);
+                if (_duelUI != null)
+                    _duelUI.OnReflectRequested += ActivateJustReflect;
+            }
 
             _inputOffsetSec = CalibrationStore.Load();
-            _audioOffsetSec = _chart.Timing.AudioOffsetMs / 1000.0;
-            _startDspTime = AudioPlayback.Schedule(_audioSource, _audioClip, _scheduleDelay);
+            double chartOffsetSec = _chart.Timing.AudioOffsetMs / 1000.0;
+
+            if (ChartSession.IsPreview)
+            {
+                _audioOffsetSec = chartOffsetSec - ChartSession.PreviewStartSec;
+                _startDspTime = AudioPlayback.Schedule(_audioSource, _audioClip, _scheduleDelay, ChartSession.PreviewStartSec);
+            }
+            else
+            {
+                _audioOffsetSec = chartOffsetSec;
+                _startDspTime = AudioPlayback.Schedule(_audioSource, _audioClip, _scheduleDelay);
+            }
+
             _songClock = new SongClock(_startDspTime, _audioOffsetSec);
             _started = true;
         }
@@ -66,7 +142,10 @@ namespace ReflecBeatSimulator.Gameplay
         private void OnDestroy()
         {
             if (_touchInput != null)
+            {
                 _touchInput.OnTouchBegan -= HandleTouchBegan;
+                _touchInput.OnTouchEnded -= HandleTouchEnded;
+            }
         }
 
         private void Update()
@@ -77,13 +156,20 @@ namespace ReflecBeatSimulator.Gameplay
             double songTime = _songClock.Tick(Time.unscaledTimeAsDouble);
             SpawnNotes(songTime);
             UpdateNotePositions(songTime);
+
+            if (_autoplay)
+                ProcessAutoplay(songTime);
+
+            if (_isDuel)
+                ProcessCpuRival(songTime);
+
             CheckMisses(songTime);
             CheckFinish(songTime);
         }
 
         private void SpawnNotes(double songTime)
         {
-            foreach (var note in _chart.Notes)
+            foreach (var note in _sessionNotes)
             {
                 if (_spawnedNotes.Contains(note))
                     continue;
@@ -98,21 +184,60 @@ namespace ReflecBeatSimulator.Gameplay
 
         private void SpawnNote(Note note)
         {
-            if (_tapNotePrefab == null || _playfield == null)
+            if (_playfield == null)
                 return;
 
-            Vector3 spawnPos = _playfield.GetSpawnPosition(note.X);
-            GameObject go = Instantiate(_tapNotePrefab, spawnPos, Quaternion.identity);
+            GameObject prefab = ResolvePrefab(note.Type);
+            if (prefab == null)
+                return;
+
+            float visualX = GetVisualX(note);
+            Vector3 spawnPos = note.Type == NoteType.Top
+                ? _playfield.GetTopSpawnPosition(note.Zone)
+                : _playfield.GetSpawnPosition(visualX);
+            GameObject go = Instantiate(prefab, spawnPos, Quaternion.identity);
             var noteObject = go.GetComponent<NoteObject>();
             if (noteObject == null)
             {
-                Debug.LogError("Tap note prefab is missing a NoteObject component.");
+                Debug.LogError($"Note prefab for '{note.Type}' is missing a NoteObject component.");
                 Destroy(go);
                 return;
             }
 
-            noteObject.Initialize(note, _playfield, _approachTime);
+            noteObject.Initialize(note, _playfield, _approachTime, visualX);
             _activeNotes.Add(noteObject);
+        }
+
+        private GameObject ResolvePrefab(string noteType)
+        {
+            GameObject prefab = noteType switch
+            {
+                NoteType.Long => _longNotePrefab,
+                NoteType.Vertical => _verticalNotePrefab,
+                NoteType.Top => _topNotePrefab,
+                NoteType.BigBang => _bigBangNotePrefab,
+                _ => _tapNotePrefab
+            };
+
+            return prefab ?? _tapNotePrefab;
+        }
+
+        private static float GetVisualX(Note note)
+        {
+            if (note.Type == NoteType.BigBang)
+                return 0.5f;
+
+            if (note.Type == NoteType.Top)
+            {
+                return note.Zone switch
+                {
+                    0 => 1f / 6f,
+                    2 => 5f / 6f,
+                    _ => 0.5f
+                };
+            }
+
+            return note.X;
         }
 
         private void UpdateNotePositions(double songTime)
@@ -135,12 +260,51 @@ namespace ReflecBeatSimulator.Gameplay
             if (!_started || _finished)
                 return;
 
-            double adjustedTouchTime = touch.DspTime - _startDspTime - _audioOffsetSec - _inputOffsetSec;
+            double adjustedTouchTime = ToSongTime(touch.DspTime);
             var candidates = CollectUnjudgedCandidates();
             var result = Judge.JudgeTouch(adjustedTouchTime, touch.NormalizedX, candidates);
 
-            if (result.HasValue)
-                ApplyJudgment(result.Value.note, result.Value.grade);
+            if (!result.HasValue)
+                return;
+
+            var (note, grade) = result.Value;
+            if (note.Type == NoteType.Long)
+            {
+                if (_heldLongNotesByNote.Contains(note))
+                    return;
+
+                NoteObject noteObject = FindActiveNoteObject(note);
+                if (noteObject == null)
+                    return;
+
+                noteObject.MarkHeld();
+                _heldLongNotes[touch.TouchId] = (noteObject, note, grade);
+                _heldLongNotesByNote.Add(note);
+            }
+            else
+            {
+                ApplyJudgment(note, grade);
+            }
+        }
+
+        private void HandleTouchEnded(TouchData touch)
+        {
+            if (!_started || _finished)
+                return;
+
+            if (!_heldLongNotes.TryGetValue(touch.TouchId, out var held))
+                return;
+
+            _heldLongNotes.Remove(touch.TouchId);
+            _heldLongNotesByNote.Remove(held.note);
+
+            if (held.noteObject == null)
+                return;
+
+            double adjustedReleaseTime = ToSongTime(touch.DspTime);
+            Judgment releaseGrade = Judge.JudgeRelease(adjustedReleaseTime, held.note);
+            Judgment finalGrade = Judge.Worse(held.headGrade, releaseGrade);
+            ApplyJudgment(held.note, finalGrade);
         }
 
         private IEnumerable<Note> CollectUnjudgedCandidates()
@@ -151,8 +315,62 @@ namespace ReflecBeatSimulator.Gameplay
                     continue;
 
                 Note note = noteObject.Note;
+                if (note.IsRival)
+                    continue;
+
                 if (!_judgedNotes.Contains(note))
                     yield return note;
+            }
+        }
+
+        private NoteObject FindActiveNoteObject(Note note)
+        {
+            foreach (var noteObject in _activeNotes)
+            {
+                if (noteObject != null && noteObject.Note == note)
+                    return noteObject;
+            }
+
+            return null;
+        }
+
+        private void ProcessAutoplay(double songTime)
+        {
+            foreach (var noteObject in _activeNotes)
+            {
+                if (noteObject == null || noteObject.IsJudged)
+                    continue;
+
+                Note note = noteObject.Note;
+                if (note.IsRival)
+                    continue;
+
+                if (_autoplayDownSent.Contains(note))
+                {
+                    if (note.Type == NoteType.Long &&
+                        _autoplayLongTouchIds.TryGetValue(note, out int touchId))
+                    {
+                        if (songTime >= note.EndTimeSec)
+                        {
+                            double releaseDsp = ToDspTime(note.EndTimeSec);
+                            HandleTouchEnded(new TouchData(touchId, GetVisualX(note), releaseDsp));
+                            _autoplayLongTouchIds.Remove(note);
+                        }
+                    }
+
+                    continue;
+                }
+
+                if (songTime < note.TimeSec)
+                    continue;
+
+                int syntheticTouchId = _nextSyntheticTouchId--;
+                double dsp = ToDspTime(note.TimeSec);
+                HandleTouchBegan(new TouchData(syntheticTouchId, GetVisualX(note), dsp));
+                _autoplayDownSent.Add(note);
+
+                if (note.Type == NoteType.Long)
+                    _autoplayLongTouchIds[note] = syntheticTouchId;
             }
         }
 
@@ -164,11 +382,35 @@ namespace ReflecBeatSimulator.Gameplay
                 if (noteObject == null || noteObject.IsJudged)
                     continue;
 
-                if (songTime > noteObject.Note.TimeSec + Constants.GoodWindow)
+                Note note = noteObject.Note;
+                if (note.IsRival)
+                    continue;
+
+                if (note.Type == NoteType.Long)
                 {
-                    ApplyJudgment(noteObject.Note, Judgment.Miss);
-                    noteObject.MarkJudged();
-                    _activeNotes.RemoveAt(i);
+                    if (_heldLongNotesByNote.Contains(note))
+                    {
+                        if (songTime > note.EndTimeSec + Constants.GoodWindow)
+                        {
+                            ForceLongNoteMiss(note);
+                            _activeNotes.RemoveAt(i);
+                        }
+                        continue;
+                    }
+
+                    if (songTime > note.EndTimeSec + Constants.GoodWindow)
+                    {
+                        ApplyJudgment(note, Judgment.Miss);
+                        _activeNotes.RemoveAt(i);
+                    }
+                }
+                else
+                {
+                    if (songTime > note.TimeSec + Constants.GoodWindow)
+                    {
+                        ApplyJudgment(note, Judgment.Miss);
+                        _activeNotes.RemoveAt(i);
+                    }
                 }
             }
         }
@@ -179,7 +421,21 @@ namespace ReflecBeatSimulator.Gameplay
                 return;
 
             _score.Apply(grade);
+            if (_isDuel && !note.IsRival)
+                _duelState.OnPlayerJudgment(note, grade);
+
             _gameplayUI?.SetScore(_score);
+            _gameplayUI?.ShowJudgment(grade);
+
+            if (_playfield != null)
+            {
+                if (note.Type == NoteType.Top)
+                    _playfield.FlashTopCircle(note.Zone);
+                else
+                    _playfield.FlashJudgmentLine();
+            }
+
+            SyncDuelUI();
 
             foreach (var noteObject in _activeNotes)
             {
@@ -191,12 +447,64 @@ namespace ReflecBeatSimulator.Gameplay
             }
         }
 
+        private void ForceLongNoteMiss(Note note)
+        {
+            int? touchIdToRemove = null;
+            foreach (var pair in _heldLongNotes)
+            {
+                if (pair.Value.note == note)
+                {
+                    touchIdToRemove = pair.Key;
+                    break;
+                }
+            }
+
+            if (touchIdToRemove.HasValue)
+            {
+                _heldLongNotes.Remove(touchIdToRemove.Value);
+                _heldLongNotesByNote.Remove(note);
+            }
+
+            ApplyJudgment(note, Judgment.Miss);
+        }
+
         private void CheckFinish(double songTime)
         {
-            if (_judgedNotes.Count < _chart.Notes.Count)
+            bool allJudged = _judgedNotes.Count >= _sessionNotes.Count;
+
+            if (_isDuel)
+            {
+                if (!_duelState.IsFinished && !allJudged)
+                    return;
+
+                _finished = true;
+                DuelOutcome outcome = _duelState.ResolveOutcome();
+
+                if (_audioSource != null)
+                    _audioSource.Stop();
+
+                if (_gameplayUI != null)
+                    _gameplayUI.gameObject.SetActive(false);
+
+                _duelUI?.gameObject.SetActive(false);
+
+                foreach (var noteObject in _activeNotes)
+                {
+                    if (noteObject != null)
+                        Destroy(noteObject.gameObject);
+                }
+                _activeNotes.Clear();
+
+                _resultsUI?.Show(_score, outcome);
+                return;
+            }
+
+            if (_judgedNotes.Count < _sessionNotes.Count)
                 return;
 
             _finished = true;
+            if (_audioSource != null)
+                _audioSource.Stop();
 
             if (_gameplayUI != null)
                 _gameplayUI.gameObject.SetActive(false);
@@ -209,6 +517,80 @@ namespace ReflecBeatSimulator.Gameplay
             _activeNotes.Clear();
 
             _resultsUI?.Show(_score);
+        }
+
+        private double ToSongTime(double dspTime)
+        {
+            return dspTime - _startDspTime - _audioOffsetSec - _inputOffsetSec;
+        }
+
+        private double ToDspTime(double songTime)
+        {
+            return _startDspTime + songTime + _audioOffsetSec + _inputOffsetSec;
+        }
+
+        private void ProcessCpuRival(double songTime)
+        {
+            if (!_isDuel || _duelState == null || _duelState.IsFinished)
+                return;
+
+            _cpuRival?.Process(songTime, OnCpuJudgment);
+            SyncDuelUI();
+        }
+
+        private void OnCpuJudgment(Note note, Judgment grade)
+        {
+            if (!_judgedNotes.Add(note))
+                return;
+
+            _duelState?.OnCpuJudgment(note, grade);
+
+            foreach (var noteObject in _activeNotes)
+            {
+                if (noteObject != null && noteObject.Note == note)
+                {
+                    noteObject.MarkJudged();
+                    break;
+                }
+            }
+
+            SyncDuelUI();
+        }
+
+        private void ActivateJustReflect()
+        {
+            if (!_isDuel || _duelState == null)
+                return;
+
+            if (_duelState.ActivateJustReflect())
+            {
+                SyncDuelUI();
+                if (_duelState.IsFinished)
+                {
+                    double songTime = _songClock.Tick(Time.unscaledTimeAsDouble);
+                    CheckFinish(songTime);
+                }
+            }
+        }
+
+        private void SyncDuelUI()
+        {
+            if (_duelUI == null || _duelState == null)
+                return;
+
+            _duelUI.SetPlayerHp(_duelState.PlayerHp, _duelState.MaxPlayerHp);
+            _duelUI.SetRivalHp(_duelState.RivalHp, _duelState.MaxRivalHp);
+            _duelUI.SetGauge(_duelState.Gauge, Constants.MaxGauge);
+        }
+
+        private static bool HasRivalNotes(List<Note> notes)
+        {
+            return notes.Any(n => n.IsRival);
+        }
+
+        private static int CountPlayerNotes(List<Note> notes)
+        {
+            return notes.Count(n => !n.IsRival);
         }
 
         private static Chart BuildDemoChart()
@@ -235,14 +617,14 @@ namespace ReflecBeatSimulator.Gameplay
                 }
             };
 
-            // 12 beats at 120 BPM, matching Assets/Audio/PlaceholderBeat.wav.
+            const int LeadInBeats = 2;
             const float DemoStepX = 1f / 6f;
             for (int i = 0; i < 12; i++)
             {
-                float x = 0.25f + (i % 4) * DemoStepX; // 0.25, 0.4167, 0.5833, 0.75, repeats
+                float x = 0.25f + (i % 4) * DemoStepX;
                 chart.Notes.Add(new Note
                 {
-                    Tick = i * Constants.Ppq,
+                    Tick = (i + LeadInBeats) * Constants.Ppq,
                     Type = NoteType.Tap,
                     X = x
                 });

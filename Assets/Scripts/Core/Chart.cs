@@ -8,5 +8,6 @@ namespace ReflecBeatSimulator.Core
         public ChartMeta Meta { get; set; }
         public ChartTiming Timing { get; set; }
         public List<Note> Notes { get; set; } = new List<Note>();
+        public RivalConfig Rival { get; set; }
     }
 }

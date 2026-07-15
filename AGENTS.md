@@ -8,8 +8,9 @@ just points here.
 
 1. **No Konami assets, ever.** No ripped audio, charts, art, fonts, or decompiled
    code may be committed, downloaded, or referenced. Original/CC content only.
-2. **Stay inside the current milestone** (see PRODUCT.md roadmap). Do not build
-   ahead, add features, or start visual polish before M1 is playable.
+2. **Stay inside the current milestone** (see `PRODUCT.md` roadmap). Do not build
+   ahead, add features, or start visual polish before the current milestone is
+   playable and the task trackers mark it complete.
 3. **Timing code uses the audio clock only.** `AudioSettings.dspTime` +
    `PlayScheduled`, via the `SongClock` abstraction. Never `Time.time`,
    `Time.deltaTime` accumulation, coroutines, or `Invoke` for anything

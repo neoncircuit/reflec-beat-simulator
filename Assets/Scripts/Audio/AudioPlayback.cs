@@ -18,5 +18,19 @@ namespace ReflecBeatSimulator.Audio
             source.PlayScheduled(startDsp);
             return startDsp;
         }
+
+        /// <summary>
+        /// Schedules <paramref name="clip"/> on <paramref name="source"/> to start
+        /// after <paramref name="delaySec"/> seconds, beginning playback at
+        /// <paramref name="startOffsetSec"/> seconds into the clip.
+        /// </summary>
+        public static double Schedule(AudioSource source, AudioClip clip, double delaySec, double startOffsetSec)
+        {
+            double startDsp = AudioSettings.dspTime + delaySec;
+            source.clip = clip;
+            source.time = (float)startOffsetSec;
+            source.PlayScheduled(startDsp);
+            return startDsp;
+        }
     }
 }

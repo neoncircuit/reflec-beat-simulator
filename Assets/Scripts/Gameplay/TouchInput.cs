@@ -24,17 +24,26 @@ namespace ReflecBeatSimulator.Gameplay
     public sealed class TouchInput : MonoBehaviour
     {
         public event Action<TouchData> OnTouchBegan;
+        public event Action<TouchData> OnTouchEnded;
 
         private void OnEnable()
         {
             EnhancedTouchSupport.Enable();
+#if UNITY_EDITOR
+            TouchSimulation.Enable();
+#endif
             Touch.onFingerDown += HandleFingerDown;
+            Touch.onFingerUp += HandleFingerUp;
         }
 
         private void OnDisable()
         {
             Touch.onFingerDown -= HandleFingerDown;
+            Touch.onFingerUp -= HandleFingerUp;
             EnhancedTouchSupport.Disable();
+#if UNITY_EDITOR
+            TouchSimulation.Disable();
+#endif
         }
 
         private void HandleFingerDown(Finger finger)
@@ -48,6 +57,19 @@ namespace ReflecBeatSimulator.Gameplay
                 AudioSettings.dspTime);
 
             OnTouchBegan?.Invoke(data);
+        }
+
+        private void HandleFingerUp(Finger finger)
+        {
+            Vector2 screenPos = finger.screenPosition;
+            var touch = finger.currentTouch;
+            int touchId = touch.valid ? touch.touchId : finger.index;
+            var data = new TouchData(
+                touchId,
+                screenPos.x / Screen.width,
+                AudioSettings.dspTime);
+
+            OnTouchEnded?.Invoke(data);
         }
     }
 }

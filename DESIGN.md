@@ -16,7 +16,7 @@ A fan-made, clean-room simulator inspired by Konami's Reflec Beat (2010–2020).
 | Master clock | `AudioSettings.dspTime` (audio hardware clock) — never `Time.time` |
 | Chart format | JSON, engine-agnostic, spec in §3 |
 | Visual scope | Baseline only. No theming, skins, or portrait/landscape debates until M1 is playable. Use Unity's default landscape orientation and placeholder primitives. |
-| Multiplayer / opponent reflect mechanic | Out of scope for now |
+| Multiplayer / online play | Out of scope; M4 is single-player versus a CPU rival only |
 
 ---
 
@@ -25,7 +25,8 @@ A fan-made, clean-room simulator inspired by Konami's Reflec Beat (2010–2020).
 1. **M0 — Sync spike.** No gameplay. One scene: play an audio clip via `PlayScheduled`, render a metronome tick, capture touches, log `(touchTime − beatTime)` deltas on the actual tablet. This validates the entire timing model before anything else is built.
 2. **M1 — Playable baseline.** One hardcoded chart, `tap` notes only, judgment line, JUST/GREAT/GOOD/MISS grading, plain text results. Placeholder circles for notes.
 3. **M2 — Chart format.** JSON loader, BPM changes, remaining note types, chart selection from device storage. Includes an **autoplay mode** (engine judges every note perfectly) — the fastest way to verify a chart's sync by ear with no human in the loop.
-4. **M3 — Authoring.** Chart editor or documented hand-authoring workflow (decide after M2). Hard requirement: the author must be able to **preview timing in place** (play the chart section with audio from inside the workflow) — lack of this was the top complaint about prior art (§8).
+4. **M3 — Authoring.** Documented hand-authoring workflow plus an in-Unity preview `EditorWindow` (`Reflec Beat / Chart Preview`). A `ChartWriter` serializes `Chart` to valid `*.rbchart.json`, `ChartSection` filters notes by time range, and `GameController` reuses the normal playback path to preview any `[start, end)` section with audio. Authoring guide: `docs/authoring.md`.
+5. **M4 — Single-player vs CPU rival.** Optional chart fields mark notes as rival-owned and/or gold. A deterministic CPU rival plays rival notes, the player builds a Just Reflect gauge, and a full gauge can strike back. Non-rival charts are unaffected.
 
 Anything not listed above is out of scope until these are done.
 
@@ -79,12 +80,32 @@ Trajectory (spawn point, travel path, approach speed) is derived by the engine f
     "audioOffsetMs": 132,
     "bpmChanges": [ { "tick": 0, "bpm": 172 } ]
   },
+  "rival": {
+    "accuracy": 0.95,
+    "rivalHp": 100,
+    "playerHp": 100
+  },
   "notes": [
     { "tick": 0,    "type": "tap",  "x": 0.25 },
-    { "tick": 240,  "type": "tap",  "x": 0.75 },
+    { "tick": 240,  "type": "tap",  "x": 0.75, "gold": true },
     { "tick": 480,  "type": "long", "x": 0.5, "durationTicks": 960 },
-    { "tick": 1920, "type": "top",  "zone": 1 }
+    { "tick": 1920, "type": "top",  "zone": 1 },
+    { "tick": 2400, "type": "tap",  "x": 0.5, "rival": true }
   ]
+}
+```
+
+Optional fields:
+
+- `rival` (note-level `bool`): `true` means the CPU rival owns the note. Defaults to `false`.
+- `gold` (note-level `bool`): `true` gives bonus gauge on a player hit or extra damage on a CPU hit. Defaults to `false`.
+- `rival` (top-level object): optional chart-level duel config. If omitted, defaults are used.
+
+```jsonc
+"rival": {
+  "accuracy": 0.95,
+  "rivalHp": 100,
+  "playerHp": 100
 }
 ```
 
@@ -111,6 +132,23 @@ public sealed class Note
 
     /// <summary>Absolute hit time in seconds, computed at load from the BPM map + audioOffsetMs.</summary>
     public double TimeSec { get; internal set; }
+
+    /// <summary>True if this note is owned by the CPU rival (single-player duel mode).</summary>
+    public bool IsRival { get; set; }
+
+    /// <summary>True if this note is a gold note (bonus gauge / extra damage).</summary>
+    public bool IsGold { get; set; }
+}
+```
+
+Optional chart-level duel configuration:
+
+```csharp
+public sealed class RivalConfig
+{
+    public double Accuracy { get; set; } = 0.95;
+    public int RivalHp { get; set; } = 100;
+    public int PlayerHp { get; set; } = 100;
 }
 ```
 

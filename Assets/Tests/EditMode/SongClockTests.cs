@@ -77,8 +77,8 @@ namespace ReflecBeatSimulator.Tests.EditMode
                 clock.Tick(unscaled);
             }
 
-            double final = clock.Tick(unscaled + 0.016);
             dsp += 0.01601;
+            double final = clock.Tick(unscaled + 0.016);
 
             Assert.That(final, Is.EqualTo(dsp).Within(0.001));
         }
