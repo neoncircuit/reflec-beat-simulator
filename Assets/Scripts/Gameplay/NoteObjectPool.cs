@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ReflecBeatSimulator.Core;
 using UnityEngine;
 
 namespace ReflecBeatSimulator.Gameplay
@@ -87,7 +88,12 @@ namespace ReflecBeatSimulator.Gameplay
                 {
                     NoteObject noteObject = stack.Pop();
                     if (noteObject != null)
-                        Object.Destroy(noteObject.gameObject);
+                    {
+                        if (Application.isPlaying)
+                            Object.Destroy(noteObject.gameObject);
+                        else
+                            Object.DestroyImmediate(noteObject.gameObject);
+                    }
                 }
             }
 

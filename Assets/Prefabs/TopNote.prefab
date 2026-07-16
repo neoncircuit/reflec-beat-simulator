@@ -99,3 +99,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enableBounce: 1
   _wallHits: 2
+  _spriteWidth: 1.28
+  _directionIndicator: {fileID: 0}

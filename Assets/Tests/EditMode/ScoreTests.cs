@@ -62,11 +62,12 @@ namespace ReflecBeatSimulator.Tests
         [TestCase(50.0, "E")]
         public void AchievementRate_MapsToGrade(double rate, string expectedGrade)
         {
-            var score = new Score(100);
-            int justs = (int)Math.Round(rate);
+            const int TotalNotes = 200;
+            var score = new Score(TotalNotes);
+            int justs = (int)Math.Round(rate * TotalNotes / 100.0);
             for (int i = 0; i < justs; i++)
                 score.Apply(Judgment.Just);
-            for (int i = justs; i < 100; i++)
+            for (int i = justs; i < TotalNotes; i++)
                 score.Apply(Judgment.Miss);
 
             Assert.That(score.Grade, Is.EqualTo(expectedGrade));

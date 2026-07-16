@@ -67,7 +67,7 @@ namespace ReflecBeatSimulator.Audio
             // Correct 10% of the gap per frame; snap if badly diverged (e.g. app resume).
             double gap = dspSongTime - _smoothedTime;
             _smoothedTime += Math.Abs(gap) > 0.05 ? gap : gap * 0.1;
-            LastDrift = gap;
+            LastDrift = Math.Abs(gap);
             return _smoothedTime;
         }
     }

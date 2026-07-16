@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ReflecBeatSimulator.Core;
+using ReflecBeatSimulator.Gameplay;
 using UnityEngine;
 using UnityEngine.UI;
 

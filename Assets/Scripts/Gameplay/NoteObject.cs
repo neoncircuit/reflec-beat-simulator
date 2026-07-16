@@ -187,7 +187,9 @@ namespace ReflecBeatSimulator.Gameplay
             if (!_enableBounce || _note == null)
                 return false;
 
-            return _note.Type != NoteType.Top && _note.Type != NoteType.BigBang;
+            return _note.Type != NoteType.Top
+                && _note.Type != NoteType.BigBang
+                && _note.Type != NoteType.Vertical;
         }
 
         private Vector3 GetSpawnPosition()

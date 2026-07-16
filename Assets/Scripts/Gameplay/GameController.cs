@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ReflecBeatSimulator.Audio;
@@ -100,23 +101,37 @@ namespace ReflecBeatSimulator.Gameplay
             if (_approachTime <= 0.0)
                 _approachTime = Constants.DefaultApproachTime;
 
+            double chartOffsetSec = _chart.Timing.AudioOffsetMs / 1000.0;
+
             if (ChartSession.IsPreview)
             {
-                double previewStart = ChartSession.PreviewStartSec;
-                double previewEnd = ChartSession.PreviewEndSec;
-                if (previewStart >= previewEnd)
+                double previewStartAudio = ChartSession.PreviewStartSec;
+                double previewEndAudio = ChartSession.PreviewEndSec;
+                double previewStartChart = previewStartAudio - chartOffsetSec;
+                double previewEndChart = previewEndAudio - chartOffsetSec;
+                if (previewStartChart >= previewEndChart)
                 {
-                    Debug.LogError($"GameController: Invalid preview range [{previewStart}, {previewEnd}).");
+                    Debug.LogError($"GameController: Invalid preview range [{previewStartAudio}, {previewEndAudio}) with offset {chartOffsetSec}.");
                     enabled = false;
                     return;
                 }
 
-                _sessionNotes = ChartSection.GetNotesInRange(_chart.Notes, previewStart, previewEnd);
+                _sessionNotes = ChartSection.GetNotesInRange(_chart.Notes, previewStartChart, previewEndChart);
                 _autoplay = true;
+
+                _audioOffsetSec = chartOffsetSec - previewStartAudio;
+                _startDspTime = AudioPlayback.Schedule(_audioSource, _audioClip, _scheduleDelay, previewStartAudio);
+            }
+            else
+            {
+                _audioOffsetSec = chartOffsetSec;
+                _startDspTime = AudioPlayback.Schedule(_audioSource, _audioClip, _scheduleDelay);
             }
 
             _isDuel = !ChartSession.IsPreview && HasRivalNotes(_sessionNotes);
-            int scoreableNotes = _isDuel ? CountPlayerNotes(_sessionNotes) : _sessionNotes.Count;
+            int scoreableNotes = HasRivalNotes(_sessionNotes)
+                ? CountPlayerNotes(_sessionNotes)
+                : _sessionNotes.Count;
             _score = new Score(scoreableNotes);
 
             if (_touchInput != null)
@@ -138,7 +153,6 @@ namespace ReflecBeatSimulator.Gameplay
             }
 
             _inputOffsetSec = CalibrationStore.Load();
-            double chartOffsetSec = _chart.Timing.AudioOffsetMs / 1000.0;
 
             var prefabsByType = new Dictionary<string, GameObject>
             {
@@ -149,17 +163,6 @@ namespace ReflecBeatSimulator.Gameplay
                 { NoteType.BigBang, _bigBangNotePrefab }
             };
             _notePool = new NoteObjectPool(prefabsByType, transform);
-
-            if (ChartSession.IsPreview)
-            {
-                _audioOffsetSec = chartOffsetSec - ChartSession.PreviewStartSec;
-                _startDspTime = AudioPlayback.Schedule(_audioSource, _audioClip, _scheduleDelay, ChartSession.PreviewStartSec);
-            }
-            else
-            {
-                _audioOffsetSec = chartOffsetSec;
-                _startDspTime = AudioPlayback.Schedule(_audioSource, _audioClip, _scheduleDelay);
-            }
 
             _songClock = new SongClock(_startDspTime, _audioOffsetSec);
             _started = true;
@@ -207,8 +210,8 @@ namespace ReflecBeatSimulator.Gameplay
 
                 if (note.TimeSec - songTime <= _approachTime)
                 {
-                    SpawnNote(note);
                     _spawnedNotes.Add(note);
+                    SpawnNote(note);
                 }
             }
         }
@@ -389,7 +392,8 @@ namespace ReflecBeatSimulator.Gameplay
                 double dsp = ToDspTime(note.TimeSec);
                 if (_syncReport != null)
                 {
-                    double deltaMs = Math.Abs(AudioSettings.dspTime - dsp) * 1000.0;
+                    double noteAudioDsp = dsp - _inputOffsetSec;
+                    double deltaMs = Math.Abs(AudioSettings.dspTime - noteAudioDsp) * 1000.0;
                     _syncReport.RecordTimingDeltaMs(deltaMs);
                 }
 
@@ -501,7 +505,10 @@ namespace ReflecBeatSimulator.Gameplay
 
         private void CheckFinish(double songTime)
         {
-            bool allJudged = _judgedNotes.Count >= _sessionNotes.Count;
+            int judgedTarget = _isDuel
+                ? _sessionNotes.Count
+                : CountPlayerNotes(_sessionNotes);
+            bool allJudged = _judgedNotes.Count >= judgedTarget;
 
             if (_isDuel)
             {
@@ -532,7 +539,7 @@ namespace ReflecBeatSimulator.Gameplay
                 return;
             }
 
-            if (_judgedNotes.Count < _sessionNotes.Count)
+            if (!allJudged)
                 return;
 
             _finished = true;

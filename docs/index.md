@@ -4,6 +4,7 @@ This folder contains project documentation for the Reflec Beat Simulator prototy
 
 ## Documents
 
+- [`preliminary-report.md`](./preliminary-report.md) — What Reflec Beat is, its mechanics, its arcade and mobile version history, and how the simulator maps those ideas.
 - [`tech-stack.md`](./tech-stack.md) — Why Unity/C# was chosen and what alternatives were considered.
 - [`architecture.md`](./architecture.md) — How the Core, Audio, Gameplay, and UI layers fit together.
 - [`authoring.md`](./authoring.md) — How to write and preview `*.rbchart.json` charts in the Unity editor.

@@ -132,7 +132,9 @@ namespace ReflecBeatSimulator.UI
 
             _loadCts?.Cancel();
             _loadCts?.Dispose();
-            _loadCts = new CancellationTokenSource();
+
+            var cts = new CancellationTokenSource();
+            _loadCts = cts;
 
             _isLoading = true;
             if (_ui != null)
@@ -143,7 +145,15 @@ namespace ReflecBeatSimulator.UI
 
             try
             {
-                var (chart, audio) = await ChartLoader.LoadAsync(directory, _loadCts.Token);
+                var (chart, audio) = await ChartLoader.LoadAsync(directory, cts.Token);
+
+                // If another selection started while we awaited, abandon this one.
+                if (_loadCts != cts)
+                {
+                    cts.Dispose();
+                    return;
+                }
+
                 ChartSession.Chart = chart;
                 ChartSession.AudioClip = audio;
                 ChartSession.ChartPath = directory;
@@ -164,21 +174,29 @@ namespace ReflecBeatSimulator.UI
             }
             catch (System.OperationCanceledException)
             {
-                _isLoading = false;
-                _ui?.SetInteractable(true);
-                // load was canceled (e.g., scene change); do nothing
+                if (_loadCts == cts)
+                {
+                    _isLoading = false;
+                    _ui?.SetInteractable(true);
+                }
+                // load was canceled (e.g., scene change or newer selection); do nothing
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"Failed to load chart from '{directory}': {ex.Message}");
-                _isLoading = false;
-                if (_ui != null)
-                    _ui.SetInteractable(true);
+                if (_loadCts == cts)
+                {
+                    Debug.LogError($"Failed to load chart from '{directory}': {ex.Message}");
+                    _isLoading = false;
+                    _ui?.SetInteractable(true);
+                }
             }
             finally
             {
-                _loadCts?.Dispose();
-                _loadCts = null;
+                if (_loadCts == cts)
+                {
+                    cts.Dispose();
+                    _loadCts = null;
+                }
             }
         }
 
