@@ -82,22 +82,22 @@
 - [x] Add Retry / Back buttons to `ResultsUI`
 - [x] Update docs and task trackers
 
-## M7 — Visual feel & transitions
+## M7 — Visual feel & transitions (completed)
 
-- [ ] Audit current scenes (`ChartSelectScene`, `GameplayScene`, `ResultsUI`) for readability
-- [ ] Redesign `ChartSelectScene` layout and typography
-- [ ] Improve note visibility / judgment-line contrast
-- [ ] Add scene-transition animations
-- [ ] Add UI element transitions (buttons, panels, results)
-- [ ] Update docs and task trackers
+- [x] Audit current scenes (`ChartSelectScene`, `GameplayScene`, `ResultsUI`) for readability
+- [x] Redesign `ChartSelectScene` layout and typography
+- [x] Improve note visibility / judgment-line contrast
+- [x] Add scene-transition animations
+- [x] Add UI element transitions (buttons, panels, results)
+- [x] Update docs and task trackers
 
 ## M8 — Device verification & build hardening
 
-- [ ] Verify calibration tap deltas on Galaxy Tab
+- [ ] Verify calibration tap deltas on Galaxy Tab (checklist: `docs/device-verification.md`)
 - [ ] Verify audio-sync feel on device with autoplay
-- [ ] Lock Android player settings (orientation, package name, DSP buffer size)
-- [ ] Create reproducible signed-APK build step
-- [ ] Document build/device-check instructions
+- [x] Lock Android player settings (orientation, package name, DSP buffer size)
+- [x] Create reproducible signed-APK build step
+- [x] Document build/device-check instructions
 
 ## M9 — Documentation & authoring workflow
 

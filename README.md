@@ -11,6 +11,8 @@ A fan-made, clean-room rhythm game for Android tablets inspired by Konami's *Ref
 - **M4 — Single-player vs CPU rival**: complete. Optional `rival`/`gold` notes, deterministic CPU rival, Just Reflect gauge, HP bars, and duel outcome.
 - **M5 — Game feel & visual clarity pass**: complete. Approach-time / rival-visibility options, object pooling, sync-trust harness, calibration nudge, hit feedback polish, and clearer results.
 - **M6 — Persistence & session flow**: complete. Saved gameplay settings, per-chart high scores shown in chart select, and Retry/Back navigation from results.
+- **M7 — Visual feel & transitions**: complete. Chart-select redesign, scene/UI transitions, note visibility and hit feedback polish.
+- **M8 — Device verification & build hardening**: build half complete. Locked Android settings (package name, IL2CPP/ARM64, LandscapeLeft, Best-latency DSP), reproducible signed-APK pipeline (`./scripts/build-android.sh`, see `docs/build-and-sign.md`), headless EditMode runner (`./scripts/run-editmode-tests.sh`). On-device Galaxy Tab verification remains — checklist in `docs/device-verification.md`.
 
 ## Legal note
 
@@ -79,15 +81,27 @@ The scenes and prefabs are built by an editor tool so they stay in sync with the
 
 ### 5. Build for Android
 
+**Reproducible signed APK (recommended)** — see `docs/build-and-sign.md`:
+
+```sh
+export RB_KEYSTORE_PATH=... RB_KEYSTORE_PASS=... RB_KEYALIAS_NAME=... RB_KEYALIAS_PASS=...
+./scripts/build-android.sh   # → Build/Android/reflec-beat-simulator.apk
+```
+
+This regenerates the scenes, applies the locked player settings
+(`Reflec Beat/Apply M8 Build Settings`: package `com.neoncircuit.reflecbeat`,
+IL2CPP/ARM64, LandscapeLeft, Best-latency DSP), signs the APK, and fails if any
+locked setting has drifted.
+
+**Manual editor build**:
+
 1. Go to **File > Build Settings**.
 2. Switch platform to **Android**.
 3. Confirm these scenes are in **Scenes In Build**:
    - `CalibrationScene`
    - `ChartSelectScene`
    - `GameplayScene`
-4. In **Player Settings**:
-   - Set **Default Orientation** to **Landscape Left**.
-   - Set a package name, e.g. `com.yourname.reflecbeatsimulator`.
+4. Run **Reflec Beat > Apply M8 Build Settings** to apply the locked player settings.
 5. Connect an Android device with USB debugging enabled.
 6. Click **Build And Run**.
 
@@ -152,4 +166,4 @@ See [`docs/authoring.md`](./docs/authoring.md) for the full JSON reference, tick
 
 ## Next steps
 
-M6 is complete. The roadmap now continues with **M7 — Visual feel & transitions** (chart-select redesign, scene/UI transitions, note visibility polish), followed by M8 device verification and M9 documentation/authoring. See `PRODUCT.md` for the full roadmap and `tasks/todo.md` for task trackers.
+M8's build hardening is complete; what remains of M8 is the on-device Galaxy Tab verification (`docs/device-verification.md`). The roadmap then finishes with **M9 — Documentation & authoring** (authoring docs and demo charts). See `PRODUCT.md` for the full roadmap and `tasks/todo.md` for task trackers.
