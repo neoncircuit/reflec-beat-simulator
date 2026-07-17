@@ -46,3 +46,8 @@
 # OS
 .DS_Store
 Thumbs.db
+
+# Test outputs
+TestResults.xml
+unity-test.log
+*.log.xml
