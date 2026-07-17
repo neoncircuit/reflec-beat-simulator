@@ -152,4 +152,4 @@ See [`docs/authoring.md`](./docs/authoring.md) for the full JSON reference, tick
 
 ## Next steps
 
-M6 is complete. The `PRODUCT.md` roadmap currently ends here, so the next phase is either defining M7 (e.g., device verification on the Galaxy Tab, build pipeline, first visual polish pass) or treating this as a release-prep milestone. See `tasks/todo.md` for completed tasks and `PRODUCT.md` for scope decisions.
+M6 is complete. The roadmap now continues with **M7 — Visual feel & transitions** (chart-select redesign, scene/UI transitions, note visibility polish), followed by M8 device verification and M9 documentation/authoring. See `PRODUCT.md` for the full roadmap and `tasks/todo.md` for task trackers.

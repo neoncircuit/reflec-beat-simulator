@@ -81,3 +81,27 @@
 - [x] Show high-score grade/rate in chart-select labels
 - [x] Add Retry / Back buttons to `ResultsUI`
 - [x] Update docs and task trackers
+
+## M7 — Visual feel & transitions
+
+- [ ] Audit current scenes (`ChartSelectScene`, `GameplayScene`, `ResultsUI`) for readability
+- [ ] Redesign `ChartSelectScene` layout and typography
+- [ ] Improve note visibility / judgment-line contrast
+- [ ] Add scene-transition animations
+- [ ] Add UI element transitions (buttons, panels, results)
+- [ ] Update docs and task trackers
+
+## M8 — Device verification & build hardening
+
+- [ ] Verify calibration tap deltas on Galaxy Tab
+- [ ] Verify audio-sync feel on device with autoplay
+- [ ] Lock Android player settings (orientation, package name, DSP buffer size)
+- [ ] Create reproducible signed-APK build step
+- [ ] Document build/device-check instructions
+
+## M9 — Documentation & authoring workflow
+
+- [ ] Improve `docs/authoring.md` with screenshots/examples
+- [ ] Polish in-editor `Chart Preview` workflow
+- [ ] Add demo/tutorial charts
+- [ ] Finalize onboarding docs for building + playing

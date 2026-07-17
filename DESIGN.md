@@ -29,6 +29,9 @@ A fan-made, clean-room simulator inspired by Konami's Reflec Beat (2010–2020).
 5. **M4 — Single-player vs CPU rival.** Optional chart fields mark notes as rival-owned and/or gold. A deterministic CPU rival plays rival notes, the player builds a Just Reflect gauge, and a full gauge can strike back. Non-rival charts are unaffected.
 6. **M5 — Game feel & visual clarity pass.** Polish note sizing/bounce readability, calibration UX, sync verification, object pooling, scroll-speed/rival-visibility options, and hit/results feedback.
 7. **M6 — Persistence & session flow.** Save gameplay settings and per-chart high scores, show bests in chart select, and provide retry/back navigation from results. Keeps the loop tight for repeated play on the target tablet.
+8. **M7 — Visual feel & transitions.** A first polish pass on the default presentation: redesign the chart-select screen, improve note visibility and hit feedback, and add smooth scene/UI transitions. No theming or skin system yet.
+9. **M8 — Device verification & build hardening.** Validate calibration and audio-sync feel on the actual Galaxy Tab, lock Android build settings, and establish a reproducible signed-APK build step.
+10. **M9 — Documentation & authoring workflow.** Improve the chart-authoring guide and in-editor preview workflow, add demo/tutorial charts, and finalize onboarding docs.
 
 Anything not listed above is out of scope until these are done.
 

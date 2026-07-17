@@ -29,6 +29,14 @@ A running list of work items for the Reflec Beat Simulator.
 | 23 | M5: Game feel + visual clarity pass | Completed | Resize notes, bounce readability, calibration nudge, sync harness, pooling, approach-time/rival-visibility options, hit/results feedback. |
 | 24 | M6: Settings persistence + high scores | Completed | `SettingsStore`, `HighScoreStore`, settings restore/save, high-score labels, results navigation. |
 | 23 | M4: Run EditMode tests in Unity | Completed | All EditMode tests pass, including `DuelStateTests` and `CpuRivalTests`. |
+| 24 | M6: Settings persistence + high scores | Completed | `SettingsStore`, `HighScoreStore`, settings restore/save, high-score labels, results navigation. |
+| 25 | M6: Run EditMode tests in Unity | Completed | Full EditMode suite passes (126 tests). |
+| 26 | M7: Chart-select visual redesign | Pending | Part of visual feel + transitions milestone. |
+| 27 | M7: Scene and UI transitions | Pending | Smooth transitions between scenes and UI elements. |
+| 28 | M7: Note visibility + hit feedback polish | Pending | Improve judgment-line contrast and feedback clarity. |
+| 29 | M8: Galaxy Tab calibration verification | Pending | Requires device build. |
+| 30 | M8: Android build settings + signed APK | Pending | Lock player settings and reproducible build step. |
+| 31 | M9: Authoring docs + demo charts | Pending | Improve `docs/authoring.md` and add tutorial charts. |
 
 ## Legend
 

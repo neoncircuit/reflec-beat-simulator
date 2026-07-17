@@ -38,6 +38,18 @@ feeling: **taps land exactly on the beat.** If sync feels off, nothing else matt
 7. **M6 — Persistence & session flow:** save gameplay settings and high scores,
    surface best results in chart select, and add retry/back navigation from the
    results screen. Prepares the simulator for repeated play on the target device.
+8. **M7 — Visual feel & transitions:** a first polish pass on the default look.
+   Redesign the chart-select screen, improve note visibility and hit feedback,
+   and add smooth transitions between scenes and UI elements. No theming or
+   skin system yet — one default presentation only.
+9. **M8 — Device verification & build hardening:** validate calibration and
+   audio-sync feel on the actual Galaxy Tab, lock Android build settings (DSP
+   buffer size, orientation, package name), and establish a reproducible
+   signed-APK build step.
+10. **M9 — Documentation & authoring workflow:** improve the chart-authoring
+    guide and in-editor preview workflow, add demo/tutorial charts, and finalize
+    onboarding docs so a stranger can build, author, and play a chart from this
+    repository alone.
 
 ## Explicit non-features (do not build)
 
