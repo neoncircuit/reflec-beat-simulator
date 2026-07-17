@@ -43,6 +43,10 @@
 *.unitypackage
 *.app
 
+# Signing keys (never commit; see docs/build-and-sign.md)
+*.keystore
+*.keystore.meta
+
 # OS
 .DS_Store
 Thumbs.db

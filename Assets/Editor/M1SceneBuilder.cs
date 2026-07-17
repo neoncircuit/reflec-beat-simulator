@@ -244,6 +244,7 @@ namespace ReflecBeatSimulator.EditorTools
 
             CreateMainCamera();
             CreateTransitionManager();
+            CreateApplicationBootstrapper();
             AudioSource audioSource = CreateAudioSource(clip);
             PlayfieldRenderer playfield = CreatePlayfield();
             TouchInput touchInput = CreateTouchInput();
@@ -264,6 +265,7 @@ namespace ReflecBeatSimulator.EditorTools
 
             CreateMainCamera();
             CreateTransitionManager();
+            CreateApplicationBootstrapper();
             AudioSource audioSource = CreateAudioSource(clip);
             CalibrationBeatMarker marker = CreateBeatMarkerInstance(beatMarkerPrefab);
             CalibrationUI calibrationUi = CreateCalibrationUI(sprite, font);
@@ -295,6 +297,12 @@ namespace ReflecBeatSimulator.EditorTools
         {
             var go = new GameObject("TransitionManager");
             go.AddComponent<TransitionManager>();
+        }
+
+        private static void CreateApplicationBootstrapper()
+        {
+            var go = new GameObject("ApplicationBootstrapper");
+            go.AddComponent<ApplicationBootstrapper>();
         }
 
         private static AudioSource CreateAudioSource(AudioClip clip)
@@ -608,6 +616,7 @@ namespace ReflecBeatSimulator.EditorTools
 
             CreateMainCamera();
             CreateTransitionManager();
+            CreateApplicationBootstrapper();
 
             GameObject canvas = CreateCanvas("Canvas");
 
