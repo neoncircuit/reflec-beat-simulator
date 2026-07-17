@@ -9,6 +9,8 @@ A fan-made, clean-room rhythm game for Android tablets inspired by Konami's *Ref
 - **M2 — Chart support**: complete (JSON chart loader, all note types, chart select UI, autoplay).
 - **M3 — Authoring**: complete. Hand-authoring workflow with in-Unity preview (`Reflec Beat / Chart Preview`). See `docs/authoring.md`.
 - **M4 — Single-player vs CPU rival**: complete. Optional `rival`/`gold` notes, deterministic CPU rival, Just Reflect gauge, HP bars, and duel outcome.
+- **M5 — Game feel & visual clarity pass**: complete. Approach-time / rival-visibility options, object pooling, sync-trust harness, calibration nudge, hit feedback polish, and clearer results.
+- **M6 — Persistence & session flow**: complete. Saved gameplay settings, per-chart high scores shown in chart select, and Retry/Back navigation from results.
 
 ## Legal note
 
@@ -150,4 +152,4 @@ See [`docs/authoring.md`](./docs/authoring.md) for the full JSON reference, tick
 
 ## Next steps
 
-See `PRODUCT.md` and `tasks/todo.md` for the roadmap. M4 is complete.
+M6 is complete. The `PRODUCT.md` roadmap currently ends here, so the next phase is either defining M7 (e.g., device verification on the Galaxy Tab, build pipeline, first visual polish pass) or treating this as a release-prep milestone. See `tasks/todo.md` for completed tasks and `PRODUCT.md` for scope decisions.
