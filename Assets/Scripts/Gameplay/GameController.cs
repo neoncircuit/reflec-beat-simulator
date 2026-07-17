@@ -29,6 +29,9 @@ namespace ReflecBeatSimulator.Gameplay
         [SerializeField] private ResultsUI _resultsUI;
         [SerializeField] private DuelUI _duelUI;
 
+        [Header("Visual Effects")]
+        [SerializeField] private HitFeedbackEffect _hitFeedback;
+
         [Header("Timing")]
         [SerializeField] private double _approachTime = Constants.DefaultApproachTime;
         [SerializeField] private double _scheduleDelay = 0.5;
@@ -465,9 +468,17 @@ namespace ReflecBeatSimulator.Gameplay
             if (_playfield != null)
             {
                 if (note.Type == NoteType.Top)
+                {
                     _playfield.FlashTopCircle(note.Zone, grade);
+                    _hitFeedback?.Play(_playfield.GetTopWorldPosition(note.Zone), ColorForGrade(grade));
+                }
                 else
+                {
                     _playfield.FlashJudgmentLine(grade);
+                    Vector3 feedbackPos = _playfield.GetWorldPosition(GetVisualX(note));
+                    feedbackPos.z = -0.1f;
+                    _hitFeedback?.Play(feedbackPos, ColorForGrade(grade));
+                }
             }
 
             SyncDuelUI();
@@ -636,6 +647,23 @@ namespace ReflecBeatSimulator.Gameplay
         private static bool HasRivalNotes(List<Note> notes)
         {
             return notes.Any(n => n.IsRival);
+        }
+
+        private static Color ColorForGrade(Judgment grade)
+        {
+            switch (grade)
+            {
+                case Judgment.Just:
+                    return new Color(1f, 0.84f, 0f);
+                case Judgment.Great:
+                    return Color.green;
+                case Judgment.Good:
+                    return Color.cyan;
+                case Judgment.Miss:
+                    return Color.red;
+                default:
+                    return Color.white;
+            }
         }
 
         private static int CountPlayerNotes(List<Note> notes)

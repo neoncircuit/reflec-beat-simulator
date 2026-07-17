@@ -1,3 +1,4 @@
+using ReflecBeatSimulator.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,7 @@ namespace ReflecBeatSimulator.Gameplay
         [SerializeField] private Text _averageText;
         [SerializeField] private Text _storedOffsetText;
         [SerializeField] private GameObject _doneGroup;
+        [SerializeField] private PanelFadeSlide _donePanelFade;
         [SerializeField] private Button _retryButton;
         [SerializeField] private Button _doneButton;
         [SerializeField] private Button _nudgeUpButton;
@@ -24,6 +26,9 @@ namespace ReflecBeatSimulator.Gameplay
         {
             _controller = FindObjectOfType<CalibrationController>();
 
+            if (_donePanelFade == null && _doneGroup != null)
+                _donePanelFade = _doneGroup.GetComponent<PanelFadeSlide>();
+
             if (_retryButton != null)
                 _retryButton.onClick.AddListener(OnRetry);
 
@@ -35,6 +40,21 @@ namespace ReflecBeatSimulator.Gameplay
 
             if (_nudgeDownButton != null)
                 _nudgeDownButton.onClick.AddListener(() => _controller?.NudgeOffset(-NudgeStepSec));
+        }
+
+        private void OnDestroy()
+        {
+            if (_retryButton != null)
+                _retryButton.onClick.RemoveAllListeners();
+
+            if (_doneButton != null)
+                _doneButton.onClick.RemoveAllListeners();
+
+            if (_nudgeUpButton != null)
+                _nudgeUpButton.onClick.RemoveAllListeners();
+
+            if (_nudgeDownButton != null)
+                _nudgeDownButton.onClick.RemoveAllListeners();
         }
 
         public void SetInstruction(string text)
@@ -69,6 +89,15 @@ namespace ReflecBeatSimulator.Gameplay
 
         public void SetDoneVisible(bool visible)
         {
+            if (_donePanelFade != null)
+            {
+                if (visible)
+                    _donePanelFade.Show();
+                else
+                    _donePanelFade.Hide();
+                return;
+            }
+
             if (_doneGroup != null)
                 _doneGroup.SetActive(visible);
         }

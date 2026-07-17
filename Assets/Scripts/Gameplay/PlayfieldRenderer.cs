@@ -20,13 +20,13 @@ namespace ReflecBeatSimulator.Gameplay
         [SerializeField] private float _topCircleRadius = 0.6f;
 
         [Header("Visuals")]
-        [SerializeField] private float _lineWidth = 0.1f;
-        [SerializeField] private Color _lineColor = new Color(0.2f, 0.9f, 1f, 1f);
-        [SerializeField] private Color _lineGlowColor = new Color(0.2f, 0.9f, 1f, 0.25f);
-        [SerializeField] private Color _backgroundColor = new Color(0.05f, 0.05f, 0.08f, 0.85f);
-        [SerializeField] private Color _laneDividerColor = new Color(0.2f, 0.2f, 0.25f, 0.5f);
-        [SerializeField] private Color _topCircleColor = new Color(1f, 0.9f, 0.2f, 0.6f);
-        [SerializeField] private Color _topCircleActiveColor = new Color(1f, 0.95f, 0.5f, 0.9f);
+        [SerializeField] private float _lineWidth = 0.12f;
+        [SerializeField] private Color _lineColor = new Color(0.6f, 0.95f, 1f, 1f);
+        [SerializeField] private Color _lineGlowColor = new Color(0.4f, 0.9f, 1f, 0.45f);
+        [SerializeField] private Color _backgroundColor = new Color(0.04f, 0.04f, 0.07f, 0.9f);
+        [SerializeField] private Color _laneDividerColor = new Color(0.35f, 0.38f, 0.45f, 0.6f);
+        [SerializeField] private Color _topCircleColor = new Color(1f, 0.92f, 0.25f, 0.75f);
+        [SerializeField] private Color _topCircleActiveColor = new Color(1f, 0.97f, 0.55f, 0.95f);
 
         public float JudgmentLineY => _judgmentLineY;
         public float TopJudgmentLineY => _topJudgmentLineY;

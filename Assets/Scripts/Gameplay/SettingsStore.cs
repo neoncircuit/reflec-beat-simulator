@@ -15,10 +15,34 @@ namespace ReflecBeatSimulator.Gameplay
         [System.Serializable]
         public class GameSettings
         {
-            public double approachTimeSec = Constants.DefaultApproachTime;
-            public bool hideRivalVisuals = false;
-            public bool autoplay = false;
-            public bool syncCheck = false;
+            [SerializeField] private double approachTimeSec = Constants.DefaultApproachTime;
+            [SerializeField] private bool hideRivalVisuals = false;
+            [SerializeField] private bool autoplay = false;
+            [SerializeField] private bool syncCheck = false;
+
+            public double ApproachTimeSec
+            {
+                get => approachTimeSec;
+                set => approachTimeSec = value;
+            }
+
+            public bool HideRivalVisuals
+            {
+                get => hideRivalVisuals;
+                set => hideRivalVisuals = value;
+            }
+
+            public bool Autoplay
+            {
+                get => autoplay;
+                set => autoplay = value;
+            }
+
+            public bool SyncCheck
+            {
+                get => syncCheck;
+                set => syncCheck = value;
+            }
         }
 
         /// <summary>Loads stored settings, or sensible defaults if none exist.</summary>

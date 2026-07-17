@@ -1,15 +1,15 @@
 using ReflecBeatSimulator.Core;
+using ReflecBeatSimulator.UI;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace ReflecBeatSimulator.UI
+namespace ReflecBeatSimulator.Gameplay
 {
     /// <summary>Plain-text results panel shown at the end of a chart.</summary>
     public sealed class ResultsUI : MonoBehaviour
     {
         [SerializeField] private GameObject _panel;
+        [SerializeField] private PanelFadeSlide _panelFade;
         [SerializeField] private Text _resultText;
         [SerializeField] private Button _retryButton;
         [SerializeField] private Button _backButton;
@@ -17,9 +17,12 @@ namespace ReflecBeatSimulator.UI
         private const float ButtonWidth = 240f;
         private const float ButtonHeight = 56f;
 
-        private void Start()
+        private void Awake()
         {
             EnsureButtons();
+
+            if (_panelFade == null && _panel != null)
+                _panelFade = _panel.GetComponent<PanelFadeSlide>();
         }
 
         public void Show(Score score)
@@ -36,6 +39,8 @@ namespace ReflecBeatSimulator.UI
         {
             if (_panel != null)
                 _panel.SetActive(true);
+
+            _panelFade?.Show();
 
             if (_resultText == null)
                 return;
@@ -70,7 +75,7 @@ namespace ReflecBeatSimulator.UI
                     "RetryButton",
                     "RETRY",
                     new Vector2(0f, -100f),
-                    () => SceneManager.LoadScene("GameplayScene"));
+                    () => TransitionManager.LoadScene("GameplayScene"));
             }
 
             if (_backButton == null)
@@ -79,11 +84,11 @@ namespace ReflecBeatSimulator.UI
                     "BackButton",
                     "BACK",
                     new Vector2(0f, -170f),
-                    () => SceneManager.LoadScene("ChartSelectScene"));
+                    () => TransitionManager.LoadScene("ChartSelectScene"));
             }
         }
 
-        private Button CreateButton(string name, string label, Vector2 anchoredPosition, UnityAction onClick)
+        private Button CreateButton(string name, string label, Vector2 anchoredPosition, UnityEngine.Events.UnityAction onClick)
         {
             var buttonGo = new GameObject(name);
             buttonGo.transform.SetParent(_panel.transform, false);
@@ -101,6 +106,8 @@ namespace ReflecBeatSimulator.UI
             var button = buttonGo.AddComponent<Button>();
             button.targetGraphic = image;
             button.onClick.AddListener(onClick);
+
+            buttonGo.AddComponent<ButtonScaleEffect>();
 
             var textGo = new GameObject("Text");
             textGo.transform.SetParent(buttonGo.transform, false);

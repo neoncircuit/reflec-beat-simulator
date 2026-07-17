@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace ReflecBeatSimulator.UI
 {
-    /// <summary>Renders the chart-select list and autoplay toggle.</summary>
+    /// <summary>Renders the chart-select list and option toggles.</summary>
     public sealed class ChartSelectUI : MonoBehaviour
     {
         [SerializeField] private Text _titleText;
@@ -17,9 +17,12 @@ namespace ReflecBeatSimulator.UI
         [SerializeField] private Toggle _syncCheckToggle;
         [SerializeField] private Toggle _hideRivalToggle;
         [SerializeField] private Button _calibrateButton;
-        [SerializeField] private Dropdown _approachTimeDropdown;
+        [SerializeField] private Text _approachTimeLabel;
+        [SerializeField] private Button _approachTimePrevButton;
+        [SerializeField] private Button _approachTimeNextButton;
 
         private readonly List<GameObject> _buttons = new List<GameObject>();
+        private int _approachTimeIndex;
 
         /// <summary>Invoked with the chart index when a chart button is pressed.</summary>
         public event Action<int> OnChartSelected;
@@ -41,24 +44,38 @@ namespace ReflecBeatSimulator.UI
         {
             get
             {
-                if (_approachTimeDropdown == null)
+                if (_approachTimeIndex < 0 || _approachTimeIndex >= Constants.ApproachTimeOptions.Count)
                     return Constants.DefaultApproachTime;
 
-                int index = _approachTimeDropdown.value;
-                if (index < 0 || index >= Constants.ApproachTimeOptions.Count)
-                    return Constants.DefaultApproachTime;
-
-                return Constants.ApproachTimeOptions[index];
+                return Constants.ApproachTimeOptions[_approachTimeIndex];
             }
         }
 
         private void Start()
         {
-            InitializeApproachTimeDropdown();
             ApplySettings(SettingsStore.Load());
+            UpdateApproachTimeLabel();
 
             if (_calibrateButton != null)
                 _calibrateButton.onClick.AddListener(() => OnCalibrate?.Invoke());
+
+            if (_approachTimePrevButton != null)
+                _approachTimePrevButton.onClick.AddListener(() => CycleApproachTime(-1));
+
+            if (_approachTimeNextButton != null)
+                _approachTimeNextButton.onClick.AddListener(() => CycleApproachTime(1));
+        }
+
+        private void OnDestroy()
+        {
+            if (_calibrateButton != null)
+                _calibrateButton.onClick.RemoveAllListeners();
+
+            if (_approachTimePrevButton != null)
+                _approachTimePrevButton.onClick.RemoveAllListeners();
+
+            if (_approachTimeNextButton != null)
+                _approachTimeNextButton.onClick.RemoveAllListeners();
         }
 
         /// <summary>Applies stored settings to the UI controls.</summary>
@@ -68,55 +85,46 @@ namespace ReflecBeatSimulator.UI
                 return;
 
             if (_autoplayToggle != null)
-                _autoplayToggle.isOn = settings.autoplay;
+                _autoplayToggle.isOn = settings.Autoplay;
 
             if (_syncCheckToggle != null)
-                _syncCheckToggle.isOn = settings.syncCheck;
+                _syncCheckToggle.isOn = settings.SyncCheck;
 
             if (_hideRivalToggle != null)
-                _hideRivalToggle.isOn = settings.hideRivalVisuals;
+                _hideRivalToggle.isOn = settings.HideRivalVisuals;
 
-            SetApproachTimeDropdown(settings.approachTimeSec);
+            SetApproachTimeIndexFromValue(settings.ApproachTimeSec);
         }
 
-        private void SetApproachTimeDropdown(double approachTimeSec)
+        private void CycleApproachTime(int delta)
         {
-            if (_approachTimeDropdown == null)
+            int count = Constants.ApproachTimeOptions.Count;
+            if (count == 0)
                 return;
 
+            _approachTimeIndex = (_approachTimeIndex + delta + count) % count;
+            UpdateApproachTimeLabel();
+        }
+
+        private void SetApproachTimeIndexFromValue(double approachTimeSec)
+        {
+            _approachTimeIndex = 0;
             for (int i = 0; i < Constants.ApproachTimeOptions.Count; i++)
             {
                 if (Math.Abs(Constants.ApproachTimeOptions[i] - approachTimeSec) < 1e-6)
                 {
-                    _approachTimeDropdown.value = i;
-                    return;
-                }
-            }
-        }
-
-        private void InitializeApproachTimeDropdown()
-        {
-            if (_approachTimeDropdown == null)
-                return;
-
-            _approachTimeDropdown.ClearOptions();
-            var options = new List<Dropdown.OptionData>();
-            foreach (double time in Constants.ApproachTimeOptions)
-                options.Add(new Dropdown.OptionData($"{time:0.00}s"));
-
-            _approachTimeDropdown.AddOptions(options);
-
-            int defaultIndex = 0;
-            for (int i = 0; i < Constants.ApproachTimeOptions.Count; i++)
-            {
-                if (Math.Abs(Constants.ApproachTimeOptions[i] - Constants.DefaultApproachTime) < 1e-6)
-                {
-                    defaultIndex = i;
+                    _approachTimeIndex = i;
                     break;
                 }
             }
 
-            _approachTimeDropdown.value = defaultIndex;
+            UpdateApproachTimeLabel();
+        }
+
+        private void UpdateApproachTimeLabel()
+        {
+            if (_approachTimeLabel != null)
+                _approachTimeLabel.text = $"Approach: {ApproachTime:0.00}s";
         }
 
         public void SetTitle(string title)
@@ -142,7 +150,7 @@ namespace ReflecBeatSimulator.UI
             _buttons.Clear();
         }
 
-        public void AddButton(string label, int index)
+        public void AddButton(string title, string artist, string difficulty, string best, int index)
         {
             if (_content == null)
             {
@@ -159,9 +167,10 @@ namespace ReflecBeatSimulator.UI
             GameObject button = Instantiate(_chartButtonPrefab, _content, false);
             button.name = $"ChartButton_{index}";
 
-            var text = button.GetComponentInChildren<Text>();
-            if (text != null)
-                text.text = label;
+            SetButtonText(button, "TitleText", title);
+            SetButtonText(button, "ArtistText", artist);
+            SetButtonText(button, "DifficultyText", difficulty);
+            SetButtonText(button, "BestText", best);
 
             var buttonComponent = button.GetComponent<Button>();
             if (buttonComponent != null)
@@ -171,7 +180,18 @@ namespace ReflecBeatSimulator.UI
             }
 
             _buttons.Add(button);
-            Debug.Log($"ChartSelectUI: added button '{label}' at index {index}.");
+            Debug.Log($"ChartSelectUI: added button '{title}' at index {index}.");
+        }
+
+        private static void SetButtonText(GameObject button, string childName, string text)
+        {
+            Transform child = button.transform.Find(childName);
+            if (child == null)
+                return;
+
+            var label = child.GetComponent<Text>();
+            if (label != null)
+                label.text = text ?? string.Empty;
         }
 
         /// <summary>Enables or disables every chart button.</summary>

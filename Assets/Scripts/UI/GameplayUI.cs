@@ -1,3 +1,4 @@
+using System.Collections;
 using ReflecBeatSimulator.Core;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +15,33 @@ namespace ReflecBeatSimulator.UI
         private float _judgmentTimer;
         private const float JudgmentDisplayDuration = 0.5f;
         private const int JudgmentFontSize = 48;
+        private const float JudgmentPopScale = 1.3f;
+        private const float JudgmentPopDuration = 0.12f;
+
+        private RectTransform _judgmentRect;
+        private Coroutine _judgmentPop;
+
+        private void Awake()
+        {
+            if (_judgmentText != null)
+                _judgmentRect = _judgmentText.GetComponent<RectTransform>();
+        }
+
+        private void OnEnable()
+        {
+            ResetJudgmentScale();
+        }
+
+        private void OnDisable()
+        {
+            if (_judgmentPop != null)
+            {
+                StopCoroutine(_judgmentPop);
+                _judgmentPop = null;
+            }
+
+            ResetJudgmentScale();
+        }
 
         private void Update()
         {
@@ -45,6 +73,54 @@ namespace ReflecBeatSimulator.UI
             _judgmentText.fontSize = JudgmentFontSize;
             _judgmentText.fontStyle = FontStyle.Bold;
             _judgmentTimer = JudgmentDisplayDuration;
+
+            PopJudgment();
+        }
+
+        private void PopJudgment()
+        {
+            if (_judgmentRect == null)
+                return;
+
+            if (_judgmentPop != null)
+                StopCoroutine(_judgmentPop);
+
+            _judgmentPop = StartCoroutine(PopRoutine());
+        }
+
+        private IEnumerator PopRoutine()
+        {
+            ResetJudgmentScale();
+            Vector3 target = Vector3.one * JudgmentPopScale;
+            float elapsed = 0f;
+
+            while (elapsed < JudgmentPopDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = elapsed / JudgmentPopDuration;
+                _judgmentRect.localScale = Vector3.Lerp(Vector3.one, target, Mathf.SmoothStep(0f, 1f, t));
+                yield return null;
+            }
+
+            _judgmentRect.localScale = target;
+            elapsed = 0f;
+
+            while (elapsed < JudgmentPopDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = elapsed / JudgmentPopDuration;
+                _judgmentRect.localScale = Vector3.Lerp(target, Vector3.one, Mathf.SmoothStep(0f, 1f, t));
+                yield return null;
+            }
+
+            _judgmentRect.localScale = Vector3.one;
+            _judgmentPop = null;
+        }
+
+        private void ResetJudgmentScale()
+        {
+            if (_judgmentRect != null)
+                _judgmentRect.localScale = Vector3.one;
         }
 
         private static Color ColorForGrade(Judgment grade)

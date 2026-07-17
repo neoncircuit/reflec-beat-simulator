@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using ReflecBeatSimulator.Audio;
 using ReflecBeatSimulator.Core;
+using ReflecBeatSimulator.UI;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
-using UnityEngine.SceneManagement;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 namespace ReflecBeatSimulator.Gameplay
@@ -80,7 +80,7 @@ namespace ReflecBeatSimulator.Gameplay
         public void Done()
         {
             Debug.Log($"Calibration complete. Stored inputOffsetSec = {CalibrationStore.Load()}");
-            SceneManager.LoadScene("ChartSelectScene");
+            TransitionManager.LoadScene("ChartSelectScene");
         }
 
         /// <summary>

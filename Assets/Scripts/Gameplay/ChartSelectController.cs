@@ -3,11 +3,10 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using ReflecBeatSimulator.Core;
-using ReflecBeatSimulator.Gameplay;
+using ReflecBeatSimulator.UI;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-namespace ReflecBeatSimulator.UI
+namespace ReflecBeatSimulator.Gameplay
 {
     /// <summary>Populates the chart-select screen and loads the chosen chart into the gameplay scene.</summary>
     public sealed class ChartSelectController : MonoBehaviour
@@ -82,38 +81,41 @@ namespace ReflecBeatSimulator.UI
 
             for (int i = 0; i < _chartDirectories.Count; i++)
             {
-                string label = FormatLabel(_chartDirectories[i]);
-                _ui?.AddButton(label, i);
+                (string title, string artist, string difficulty, string best) = FormatLabelParts(_chartDirectories[i]);
+                _ui?.AddButton(title, artist, difficulty, best, i);
             }
 
             if (_chartDirectories.Count == 0)
-                _ui?.AddButton("No charts found", -1);
+                _ui?.AddButton("No charts found", string.Empty, string.Empty, string.Empty, -1);
 
             _ui?.SetInteractable(true);
         }
 
-        private static string FormatLabel(string directory)
+        private static (string title, string artist, string difficulty, string best) FormatLabelParts(string directory)
         {
             string chartPath = FindChartFile(directory);
             if (chartPath == null)
-                return Path.GetFileName(directory);
+                return (Path.GetFileName(directory), string.Empty, string.Empty, string.Empty);
 
             try
             {
                 string json = File.ReadAllText(chartPath);
                 Chart chart = ChartParser.Parse(json);
-                string label = $"{chart.Meta.Title} - {chart.Meta.Artist} [{chart.Meta.Difficulty} {chart.Meta.Level}]";
+                string title = chart.Meta.Title;
+                string artist = chart.Meta.Artist;
+                string difficulty = $"[{chart.Meta.Difficulty} {chart.Meta.Level}]";
 
                 var best = HighScoreStore.LoadBest(directory);
-                if (best != null)
-                    label += $"  |  Best: {best.grade} {best.achievementRate:F2}%";
+                string bestText = best != null
+                    ? $"Best: {best.grade} {best.achievementRate:F2}%"
+                    : string.Empty;
 
-                return label;
+                return (title, artist, difficulty, bestText);
             }
             catch (System.Exception ex)
             {
                 Debug.LogWarning($"ChartSelectController: Failed to read '{chartPath}': {ex.Message}");
-                return Path.GetFileName(directory);
+                return (Path.GetFileName(directory), string.Empty, string.Empty, string.Empty);
             }
         }
 
@@ -164,13 +166,13 @@ namespace ReflecBeatSimulator.UI
 
                 SettingsStore.Save(new SettingsStore.GameSettings
                 {
-                    approachTimeSec = ChartSession.ApproachTime,
-                    hideRivalVisuals = ChartSession.HideRivalVisuals,
-                    autoplay = ChartSession.Autoplay,
-                    syncCheck = ChartSession.SyncCheck
+                    ApproachTimeSec = ChartSession.ApproachTime,
+                    HideRivalVisuals = ChartSession.HideRivalVisuals,
+                    Autoplay = ChartSession.Autoplay,
+                    SyncCheck = ChartSession.SyncCheck
                 });
 
-                SceneManager.LoadScene("GameplayScene");
+                TransitionManager.LoadScene("GameplayScene");
             }
             catch (System.OperationCanceledException)
             {
@@ -202,8 +204,14 @@ namespace ReflecBeatSimulator.UI
 
         private void OnCalibrate()
         {
+            _loadCts?.Cancel();
+            _loadCts?.Dispose();
+            _loadCts = null;
+            _isLoading = false;
+            _ui?.SetInteractable(true);
+
             ChartSession.Clear();
-            SceneManager.LoadScene("CalibrationScene");
+            TransitionManager.LoadScene("CalibrationScene");
         }
     }
 }

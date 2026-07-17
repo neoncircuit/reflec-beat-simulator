@@ -243,13 +243,15 @@ namespace ReflecBeatSimulator.EditorTools
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
 
             CreateMainCamera();
+            CreateTransitionManager();
             AudioSource audioSource = CreateAudioSource(clip);
             PlayfieldRenderer playfield = CreatePlayfield();
             TouchInput touchInput = CreateTouchInput();
+            HitFeedbackEffect hitFeedback = CreateHitFeedback();
             (GameplayUI gameplayUi, GameObject canvas) = CreateGameplayUI(font);
             ResultsUI resultsUi = CreateResultsUI(canvas, sprite, font);
             DuelUI duelUi = CreateDuelUI(canvas, sprite, font);
-            CreateGameController(audioSource, clip, playfield, touchInput, notePrefabs, gameplayUi, resultsUi, duelUi);
+            CreateGameController(audioSource, clip, playfield, touchInput, notePrefabs, gameplayUi, resultsUi, duelUi, hitFeedback);
             CreateEventSystem();
 
             if (!EditorSceneManager.SaveScene(scene, $"{ScenesPath}/GameplayScene.unity"))
@@ -261,6 +263,7 @@ namespace ReflecBeatSimulator.EditorTools
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
 
             CreateMainCamera();
+            CreateTransitionManager();
             AudioSource audioSource = CreateAudioSource(clip);
             CalibrationBeatMarker marker = CreateBeatMarkerInstance(beatMarkerPrefab);
             CalibrationUI calibrationUi = CreateCalibrationUI(sprite, font);
@@ -286,6 +289,12 @@ namespace ReflecBeatSimulator.EditorTools
             camera.farClipPlane = 1000f;
 
             go.AddComponent<AudioListener>();
+        }
+
+        private static void CreateTransitionManager()
+        {
+            var go = new GameObject("TransitionManager");
+            go.AddComponent<TransitionManager>();
         }
 
         private static AudioSource CreateAudioSource(AudioClip clip)
@@ -316,6 +325,24 @@ namespace ReflecBeatSimulator.EditorTools
             return go.AddComponent<TouchInput>();
         }
 
+        private static HitFeedbackEffect CreateHitFeedback()
+        {
+            var go = new GameObject("HitFeedbackEffect");
+            var effect = go.AddComponent<HitFeedbackEffect>();
+
+            Sprite ringSprite = AssetDatabase.LoadAssetAtPath<Sprite>(RingSpritePath);
+            Material ringMaterial = AssetDatabase.LoadAssetAtPath<Material>(RingMaterialPath);
+
+            using (var so = new SerializedObject(effect))
+            {
+                so.FindProperty("_ringSprite").objectReferenceValue = ringSprite;
+                so.FindProperty("_ringMaterial").objectReferenceValue = ringMaterial;
+                so.ApplyModifiedProperties();
+            }
+
+            return effect;
+        }
+
         private static void CreateGameController(
             AudioSource audioSource,
             AudioClip clip,
@@ -324,7 +351,8 @@ namespace ReflecBeatSimulator.EditorTools
             (GameObject tap, GameObject longNote, GameObject vertical, GameObject top, GameObject bigBang) notePrefabs,
             GameplayUI gameplayUi,
             ResultsUI resultsUi,
-            DuelUI duelUi)
+            DuelUI duelUi,
+            HitFeedbackEffect hitFeedback)
         {
             var go = new GameObject("GameController");
             var controller = go.AddComponent<GameController>();
@@ -343,6 +371,7 @@ namespace ReflecBeatSimulator.EditorTools
                 so.FindProperty("_gameplayUI").objectReferenceValue = gameplayUi;
                 so.FindProperty("_resultsUI").objectReferenceValue = resultsUi;
                 so.FindProperty("_duelUI").objectReferenceValue = duelUi;
+                so.FindProperty("_hitFeedback").objectReferenceValue = hitFeedback;
                 so.ApplyModifiedProperties();
             }
         }
@@ -386,6 +415,9 @@ namespace ReflecBeatSimulator.EditorTools
                 Vector2.zero, new Vector2(800f, 400f), sprite);
             panel.SetActive(false);
 
+            panel.AddComponent<CanvasGroup>();
+            var panelFade = panel.AddComponent<PanelFadeSlide>();
+
             var resultText = CreateUiText(panel, "ResultText", "",
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 Vector2.zero, new Vector2(700f, 300f), 32, TextAnchor.MiddleCenter, font);
@@ -394,6 +426,7 @@ namespace ReflecBeatSimulator.EditorTools
             using (var so = new SerializedObject(ui))
             {
                 so.FindProperty("_panel").objectReferenceValue = panel;
+                so.FindProperty("_panelFade").objectReferenceValue = panelFade;
                 so.FindProperty("_resultText").objectReferenceValue = resultText;
                 so.ApplyModifiedProperties();
             }
@@ -520,10 +553,24 @@ namespace ReflecBeatSimulator.EditorTools
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -220f), new Vector2(600f, 60f), 36, TextAnchor.UpperCenter, font);
 
+            var storedOffset = CreateUiText(canvas, "StoredOffsetText", "Stored offset: --",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -290f), new Vector2(600f, 60f), 32, TextAnchor.UpperCenter, font);
+
+            Button nudgeDownButton = CreateButton(canvas, "NudgeDownButton", "-5 ms",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(-140f, -360f), new Vector2(160f, 60f), sprite, font);
+
+            Button nudgeUpButton = CreateButton(canvas, "NudgeUpButton", "+5 ms",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(140f, -360f), new Vector2(160f, 60f), sprite, font);
+
             var doneGroup = CreateUiPanel(canvas, "DoneGroup",
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 Vector2.zero, new Vector2(600f, 200f), sprite);
             doneGroup.SetActive(false);
+            doneGroup.AddComponent<CanvasGroup>();
+            var donePanelFade = doneGroup.AddComponent<PanelFadeSlide>();
 
             Button retryButton = CreateButton(doneGroup, "RetryButton", "Retry",
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
@@ -542,9 +589,13 @@ namespace ReflecBeatSimulator.EditorTools
                 so.FindProperty("_instructionText").objectReferenceValue = instruction;
                 so.FindProperty("_lastDeltaText").objectReferenceValue = lastDelta;
                 so.FindProperty("_averageText").objectReferenceValue = average;
+                so.FindProperty("_storedOffsetText").objectReferenceValue = storedOffset;
                 so.FindProperty("_doneGroup").objectReferenceValue = doneGroup;
+                so.FindProperty("_donePanelFade").objectReferenceValue = donePanelFade;
                 so.FindProperty("_retryButton").objectReferenceValue = retryButton;
                 so.FindProperty("_doneButton").objectReferenceValue = doneButton;
+                so.FindProperty("_nudgeUpButton").objectReferenceValue = nudgeUpButton;
+                so.FindProperty("_nudgeDownButton").objectReferenceValue = nudgeDownButton;
                 so.ApplyModifiedProperties();
             }
 
@@ -556,6 +607,7 @@ namespace ReflecBeatSimulator.EditorTools
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
 
             CreateMainCamera();
+            CreateTransitionManager();
 
             GameObject canvas = CreateCanvas("Canvas");
 
@@ -563,15 +615,39 @@ namespace ReflecBeatSimulator.EditorTools
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -60f), new Vector2(1200f, 80f), 48, TextAnchor.UpperCenter, font);
 
+            Toggle autoplayToggle = CreateToggle(canvas, "AutoplayToggle", "Autoplay",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(-520f, -160f), new Vector2(280f, 60f), sprite, font);
+
+            Toggle syncCheckToggle = CreateToggle(canvas, "SyncCheckToggle", "Sync Check",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(-170f, -160f), new Vector2(280f, 60f), sprite, font);
+
+            Toggle hideRivalToggle = CreateToggle(canvas, "HideRivalToggle", "Hide Rival",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(180f, -160f), new Vector2(280f, 60f), sprite, font);
+
+            Button calibrateButton = CreateButton(canvas, "CalibrateButton", "Calibrate",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(520f, -160f), new Vector2(200f, 60f), sprite, font);
+
+            (Text approachLabel, Button approachPrev, Button approachNext) = CreateStepper(canvas, "ApproachStepper", "Approach: 1.00s",
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -240f), new Vector2(360f, 60f), sprite, font);
+
             (GameObject scrollView, Transform content) = CreateScrollView(canvas,
-                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0f, 40f), new Vector2(1400f, 800f), sprite);
+                new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -300f), new Vector2(1400f, 700f), sprite);
+
+            var scrollRectTransform = scrollView.GetComponent<RectTransform>();
+            scrollRectTransform.anchorMin = Vector2.zero;
+            scrollRectTransform.anchorMax = Vector2.one;
+            scrollRectTransform.anchoredPosition = Vector2.zero;
+            scrollRectTransform.sizeDelta = Vector2.zero;
+            scrollRectTransform.offsetMin = new Vector2(40f, 40f);
+            scrollRectTransform.offsetMax = new Vector2(-40f, -300f);
 
             GameObject buttonPrefab = CreateChartButtonPrefab(sprite, font);
-
-            Toggle autoplayToggle = CreateAutoplayToggle(canvas,
-                new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                new Vector2(0f, 60f), new Vector2(400f, 60f), sprite, font);
 
             var uiGo = new GameObject("ChartSelectUI");
             uiGo.transform.SetParent(canvas.transform, false);
@@ -583,6 +659,12 @@ namespace ReflecBeatSimulator.EditorTools
                 so.FindProperty("_content").objectReferenceValue = content;
                 so.FindProperty("_chartButtonPrefab").objectReferenceValue = buttonPrefab;
                 so.FindProperty("_autoplayToggle").objectReferenceValue = autoplayToggle;
+                so.FindProperty("_syncCheckToggle").objectReferenceValue = syncCheckToggle;
+                so.FindProperty("_hideRivalToggle").objectReferenceValue = hideRivalToggle;
+                so.FindProperty("_calibrateButton").objectReferenceValue = calibrateButton;
+                so.FindProperty("_approachTimeLabel").objectReferenceValue = approachLabel;
+                so.FindProperty("_approachTimePrevButton").objectReferenceValue = approachPrev;
+                so.FindProperty("_approachTimeNextButton").objectReferenceValue = approachNext;
                 so.ApplyModifiedProperties();
             }
 
@@ -622,6 +704,7 @@ namespace ReflecBeatSimulator.EditorTools
 
             var scrollRect = go.AddComponent<ScrollRect>();
             scrollRect.horizontal = false;
+            scrollRect.vertical = true;
             scrollRect.movementType = ScrollRect.MovementType.Clamped;
 
             var viewport = CreateUiPanel(go, "Viewport",
@@ -653,7 +736,7 @@ namespace ReflecBeatSimulator.EditorTools
             layoutGroup.childAlignment = TextAnchor.UpperCenter;
             layoutGroup.childControlWidth = true;
             layoutGroup.childControlHeight = true;
-            layoutGroup.childForceExpandWidth = false;
+            layoutGroup.childForceExpandWidth = true;
             layoutGroup.childForceExpandHeight = false;
 
             content.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -669,21 +752,36 @@ namespace ReflecBeatSimulator.EditorTools
             var root = new GameObject("ChartButtonPrefab", typeof(RectTransform));
 
             var rt = root.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(1200f, 100f);
+            rt.sizeDelta = new Vector2(1200f, 110f);
 
             var image = root.AddComponent<Image>();
             image.sprite = sprite;
-            image.color = new Color(0.65f, 0.65f, 0.65f, 1f);
+            image.color = new Color(0.2f, 0.22f, 0.28f, 0.95f);
 
             var button = root.AddComponent<Button>();
             button.targetGraphic = image;
 
-            Text label = CreateUiText(root, "Text", "Chart Label",
-                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                Vector2.zero, new Vector2(1100f, 80f), 32, TextAnchor.MiddleCenter, font);
-            label.rectTransform.anchorMin = Vector2.zero;
-            label.rectTransform.anchorMax = Vector2.one;
-            label.rectTransform.sizeDelta = Vector2.zero;
+            root.AddComponent<ButtonScaleEffect>();
+
+            Text titleText = CreateUiText(root, "TitleText", "Title",
+                new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(20f, -10f), new Vector2(760f, 50f), 30, TextAnchor.UpperLeft, font);
+            titleText.rectTransform.pivot = new Vector2(0f, 1f);
+
+            Text artistText = CreateUiText(root, "ArtistText", "Artist",
+                new Vector2(0f, 0f), new Vector2(0f, 0f),
+                new Vector2(20f, 10f), new Vector2(760f, 40f), 24, TextAnchor.LowerLeft, font);
+            artistText.rectTransform.pivot = new Vector2(0f, 0f);
+
+            Text difficultyText = CreateUiText(root, "DifficultyText", "Difficulty",
+                new Vector2(1f, 1f), new Vector2(1f, 1f),
+                new Vector2(-20f, -10f), new Vector2(280f, 40f), 24, TextAnchor.UpperRight, font);
+            difficultyText.rectTransform.pivot = new Vector2(1f, 1f);
+
+            Text bestText = CreateUiText(root, "BestText", "Best",
+                new Vector2(1f, 0f), new Vector2(1f, 0f),
+                new Vector2(-20f, 10f), new Vector2(280f, 40f), 22, TextAnchor.LowerRight, font);
+            bestText.rectTransform.pivot = new Vector2(1f, 0f);
 
             string path = $"{PrefabsPath}/ChartButton.prefab";
             GameObject savedPrefab = PrefabUtility.SaveAsPrefabAsset(root, path, out bool ok);
@@ -698,8 +796,10 @@ namespace ReflecBeatSimulator.EditorTools
             return savedPrefab;
         }
 
-        private static Toggle CreateAutoplayToggle(
+        private static Toggle CreateToggle(
             GameObject parent,
+            string name,
+            string label,
             Vector2 anchorMin,
             Vector2 anchorMax,
             Vector2 anchoredPosition,
@@ -707,7 +807,7 @@ namespace ReflecBeatSimulator.EditorTools
             Sprite sprite,
             Font font)
         {
-            var go = new GameObject("AutoplayToggle", typeof(RectTransform));
+            var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent.transform, false);
 
             var rt = go.GetComponent<RectTransform>();
@@ -740,10 +840,11 @@ namespace ReflecBeatSimulator.EditorTools
             cmImage.sprite = sprite;
             cmImage.color = new Color(0.2f, 0.8f, 0.2f);
 
-            var label = CreateUiText(go, "Label", "Autoplay",
-                new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
-                new Vector2(-10f, 0f), new Vector2(300f, 60f), 32, TextAnchor.MiddleRight, font);
-            label.rectTransform.pivot = new Vector2(1f, 0.5f);
+            var labelText = CreateUiText(go, "Label", label,
+                new Vector2(0f, 0f), new Vector2(1f, 1f),
+                Vector2.zero, Vector2.zero, 28, TextAnchor.MiddleLeft, font);
+            labelText.rectTransform.offsetMin = new Vector2(60f, 0f);
+            labelText.rectTransform.offsetMax = new Vector2(-10f, 0f);
 
             var toggle = go.AddComponent<Toggle>();
             toggle.targetGraphic = bgImage;
@@ -751,6 +852,43 @@ namespace ReflecBeatSimulator.EditorTools
             toggle.isOn = false;
 
             return toggle;
+        }
+
+        private static (Text label, Button prevButton, Button nextButton) CreateStepper(
+            GameObject parent,
+            string name,
+            string initialLabel,
+            Vector2 anchorMin,
+            Vector2 anchorMax,
+            Vector2 anchoredPosition,
+            Vector2 sizeDelta,
+            Sprite sprite,
+            Font font)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent.transform, false);
+
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = anchorMin;
+            rt.anchorMax = anchorMax;
+            rt.anchoredPosition = anchoredPosition;
+            rt.sizeDelta = sizeDelta;
+
+            Button prevButton = CreateButton(go, "PrevButton", "<",
+                new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(0f, 0f), new Vector2(60f, 60f), sprite, font);
+
+            Button nextButton = CreateButton(go, "NextButton", ">",
+                new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
+                new Vector2(0f, 0f), new Vector2(60f, 60f), sprite, font);
+
+            Text label = CreateUiText(go, "Label", initialLabel,
+                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                Vector2.zero, new Vector2(sizeDelta.x - 140f, 60f), 30, TextAnchor.MiddleCenter, font);
+            label.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            label.raycastTarget = false;
+
+            return (label, prevButton, nextButton);
         }
 
         private static void CreateCalibrationController(
@@ -812,6 +950,7 @@ namespace ReflecBeatSimulator.EditorTools
             t.fontSize = fontSize;
             t.color = Color.white;
             t.alignment = alignment;
+            t.raycastTarget = false;
             if (font != null)
                 t.font = font;
 
@@ -869,6 +1008,8 @@ namespace ReflecBeatSimulator.EditorTools
 
             var button = go.AddComponent<Button>();
             button.targetGraphic = image;
+
+            go.AddComponent<ButtonScaleEffect>();
 
             var labelText = CreateUiText(go, "Text", label,
                 new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
