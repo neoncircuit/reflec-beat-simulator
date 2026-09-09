@@ -1,5 +1,14 @@
 # Device Verification — Galaxy Tab Checklist (M8)
 
+**When to run this:** after the build already feels right in the **Unity Editor**
+(Play Mode + touch simulation; optional Editor Android/emulator smoke if needed).
+Do **not** use the Galaxy Tab for daily iteration — avoid reinstalling every
+UI or chart change. Treat the Tab as a **late / final certification gate** for
+things only hardware can prove (real audio latency, multi-touch).
+
+Build hardening (player settings, signed APK pipeline) can stay done ahead of
+time; the checklist below is the on-device half of M8.
+
 Run this on the physical Samsung Galaxy Tab after building the signed APK
 (`docs/build-and-sign.md`). This closes out tasks #8 and #29 — the two items
 that cannot be verified without hardware.

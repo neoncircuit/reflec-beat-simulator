@@ -23,6 +23,8 @@ namespace ReflecBeatSimulator.UI
         {
             if (_reflectButton != null)
                 _reflectButton.onClick.AddListener(() => OnReflectRequested?.Invoke());
+
+            ApplyTheme();
         }
 
         /// <summary>Sets up the HUD with the duel starting values.</summary>
@@ -70,6 +72,43 @@ namespace ReflecBeatSimulator.UI
 
             if (_reflectButton != null)
                 _reflectButton.interactable = gauge >= max;
+        }
+
+        private void ApplyTheme()
+        {
+            UiChrome.StylePanel(gameObject, DefaultVisualTheme.PanelSurface, 2f);
+
+            StyleText(_playerHpText);
+            StyleText(_rivalHpText);
+            StyleText(_gaugeText);
+            StyleSlider(_playerHpBar, DefaultVisualTheme.PlayerHpFill);
+            StyleSlider(_rivalHpBar, DefaultVisualTheme.RivalHpFill);
+            StyleSlider(_gaugeBar, DefaultVisualTheme.GaugeFill);
+
+            UiChrome.StyleButton(_reflectButton, accent: true);
+        }
+
+        private static void StyleText(Text text)
+        {
+            if (text != null)
+                text.color = DefaultVisualTheme.TextPrimary;
+        }
+
+        private static void StyleSlider(Slider slider, Color fillColor)
+        {
+            if (slider == null)
+                return;
+
+            var background = slider.GetComponent<Image>();
+            if (background != null)
+                background.color = DefaultVisualTheme.SliderTrack;
+
+            if (slider.fillRect != null)
+            {
+                var fill = slider.fillRect.GetComponent<Image>();
+                if (fill != null)
+                    fill.color = fillColor;
+            }
         }
     }
 }

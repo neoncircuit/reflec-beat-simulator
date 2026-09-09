@@ -21,6 +21,9 @@ namespace ReflecBeatSimulator.UI
         private Vector2 _originalPosition;
         private Vector2 _shownPosition;
 
+        /// <summary>Current fade/slide duration in seconds.</summary>
+        public float Duration => _duration;
+
         private void Awake()
         {
             _canvasGroup = GetComponent<CanvasGroup>();
@@ -45,6 +48,13 @@ namespace ReflecBeatSimulator.UI
                 _rectTransform.anchoredPosition = _originalPosition;
                 _shownPosition = _originalPosition;
             }
+        }
+
+        /// <summary>Overrides duration and hidden offset for this panel's animations.</summary>
+        public void Configure(float duration, Vector2 hiddenOffset)
+        {
+            _duration = Mathf.Max(0f, duration);
+            _hiddenOffset = hiddenOffset;
         }
 
         /// <summary>Shows the panel with a fade+slide animation.</summary>

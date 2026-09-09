@@ -1,5 +1,6 @@
 using System.Collections;
 using ReflecBeatSimulator.Core;
+using ReflecBeatSimulator.UI;
 using UnityEngine;
 
 namespace ReflecBeatSimulator.Gameplay
@@ -9,14 +10,15 @@ namespace ReflecBeatSimulator.Gameplay
     {
         private const float DefaultSpriteWidth = 1.28f;
 
-        private static readonly Color LeftFirstColor = new Color(0.35f, 0.75f, 1f, 1f);
-        private static readonly Color RightFirstColor = new Color(1f, 0.6f, 0.2f, 1f);
-
         [Header("Bounce (visual-only)")]
         [SerializeField] private bool _enableBounce = true;
         [SerializeField] private int _wallHits = 2;
         [SerializeField] private float _spriteWidth = DefaultSpriteWidth;
         [SerializeField] private Transform _directionIndicator;
+
+        [Header("Bounce Glow")]
+        [SerializeField] private Color _goldGlowColor = new Color(1f, 0.82f, 0.40f, 1f);
+        [SerializeField] private float _goldGlowDuration = 0.18f;
 
         private Note _note;
         private PlayfieldRenderer _playfield;
@@ -27,6 +29,9 @@ namespace ReflecBeatSimulator.Gameplay
         private bool _isRival;
         private bool _baseEnableBounce;
         private bool _isPlayingEffect;
+        private int _lastBounceSegment;
+        private Color _baseColor;
+        private Coroutine _activeGlow;
 
         private const float HitEffectDuration = 0.12f;
         private const float HitEffectScale = 1.35f;
@@ -51,14 +56,38 @@ namespace ReflecBeatSimulator.Gameplay
             _visualX = visualX;
             _bounceDirection = visualX < 0.5f ? 1f : -1f;
             _enableBounce = _baseEnableBounce && !_isRival;
+            _lastBounceSegment = -1;
             transform.localScale = Vector3.one * (_playfield.NoteWorldWidth / _spriteWidth);
 
             SpriteRenderer renderer = GetComponentInChildren<SpriteRenderer>();
             if (renderer != null)
-                renderer.color = Color.white;
+                renderer.color = ColorForType(note);
 
             ApplyTint(note);
             ApplyDirectionVisuals();
+
+            if (renderer != null)
+                _baseColor = renderer.color;
+        }
+
+        private static Color ColorForType(Note note)
+        {
+            if (note == null)
+                return DefaultVisualTheme.NoteTap;
+
+            switch (note.Type)
+            {
+                case NoteType.Long:
+                    return DefaultVisualTheme.NoteLong;
+                case NoteType.Vertical:
+                    return DefaultVisualTheme.NoteVertical;
+                case NoteType.Top:
+                    return DefaultVisualTheme.NoteTop;
+                case NoteType.BigBang:
+                    return DefaultVisualTheme.NoteBigBang;
+                default:
+                    return DefaultVisualTheme.NoteTap;
+            }
         }
 
         /// <summary>Updates position based on the current song time. Call from GameController.Update.</summary>
@@ -85,6 +114,13 @@ namespace ReflecBeatSimulator.Gameplay
                 float progress = 1f - (float)t;
                 float bouncedX = BounceMath.BounceX(_visualX, progress, _wallHits, _bounceDirection);
                 position.x = _playfield.GetWorldPosition(bouncedX).x;
+
+                int segment = Mathf.FloorToInt(progress * _wallHits);
+                if (segment > _lastBounceSegment)
+                {
+                    _lastBounceSegment = segment;
+                    TriggerBounceGlow();
+                }
             }
 
             transform.position = position;
@@ -113,9 +149,11 @@ namespace ReflecBeatSimulator.Gameplay
         public void ResetState()
         {
             StopAllCoroutines();
+            _activeGlow = null;
             IsJudged = false;
             IsHeld = false;
             _isPlayingEffect = false;
+            _lastBounceSegment = -1;
         }
 
         /// <summary>Locks the note at the judgment line while a long note is being held.</summary>
@@ -144,6 +182,38 @@ namespace ReflecBeatSimulator.Gameplay
             ReturnToPool();
         }
 
+        private void TriggerBounceGlow()
+        {
+            SpriteRenderer renderer = GetComponentInChildren<SpriteRenderer>();
+            if (renderer == null)
+                return;
+
+            if (_activeGlow != null)
+            {
+                StopCoroutine(_activeGlow);
+                _activeGlow = null;
+            }
+
+            _activeGlow = StartCoroutine(GlowCoroutine(renderer, _goldGlowColor, _goldGlowDuration));
+        }
+
+        private IEnumerator GlowCoroutine(SpriteRenderer renderer, Color glowColor, float duration)
+        {
+            renderer.color = glowColor;
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = elapsed / duration;
+                renderer.color = Color.Lerp(glowColor, _baseColor, t);
+                yield return null;
+            }
+
+            renderer.color = _baseColor;
+            _activeGlow = null;
+        }
+
         private bool IsTopNote()
         {
             return _note != null && _note.Type == NoteType.Top;
@@ -159,9 +229,9 @@ namespace ReflecBeatSimulator.Gameplay
                 return;
 
             if (note.IsGold)
-                renderer.color = Color.yellow;
+                renderer.color = DefaultVisualTheme.NoteGold;
             else if (note.IsRival)
-                renderer.color = new Color(1f, 0.3f, 0.3f);
+                renderer.color = DefaultVisualTheme.NoteRival;
         }
 
         private void ApplyDirectionVisuals()
@@ -179,12 +249,18 @@ namespace ReflecBeatSimulator.Gameplay
             if (renderer == null)
                 return;
 
-            renderer.color = _bounceDirection > 0f ? LeftFirstColor : RightFirstColor;
+            renderer.color = _bounceDirection > 0f
+                ? DefaultVisualTheme.NoteBounceLeft
+                : DefaultVisualTheme.NoteBounceRight;
         }
 
         private bool ShouldBounce()
         {
             if (!_enableBounce || _note == null)
+                return false;
+
+            // Only special (gold) notes bounce in the original; straight-shot types never do.
+            if (!_note.IsGold)
                 return false;
 
             return _note.Type != NoteType.Top

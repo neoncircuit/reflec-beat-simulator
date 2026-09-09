@@ -27,6 +27,15 @@ Application.persistentDataPath/charts/<chart-folder>/
 
 The **Chart Preview** window creates this folder layout for you. If you prefer to do it by hand, create the folder and place both files there.
 
+### What about official Reflec Beat charts?
+
+There is **no** Konami / Reflec Beat Plus chart or audio file you can legally ship or test with in this project. Use:
+
+- the bundled demo chart under `StreamingAssets/charts/` (copied on first launch), or
+- original / CC-licensed audio plus a hand-authored `*.rbchart.json` (this guide).
+
+A typical fan track pack looks like: chart JSON + audio (+ optional cover art later). **Thumbnails** are not wired into chart select yet; when added, expect something like `cover.png` beside the JSON without changing the timing format.
+
 ### Finding `persistentDataPath`
 
 - **Unity Editor on Windows:** `C:\Users\<you>\AppData\Local\Unity\DefaultCompany\ReflecBeatSimulator`

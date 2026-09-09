@@ -36,6 +36,7 @@ just points here.
 - **Constants:** judgment windows, approach time, and offsets are named constants
   in one place (`Core/`), never magic numbers scattered in MonoBehaviours.
 - **Commits:** small and scoped; message states the milestone (e.g. `M1: ...`).
+- **Documentation Style**: When writing plans or documentation use: ASD-STE100 Simplified Technical English (STE for short).
 
 ## When unsure
 

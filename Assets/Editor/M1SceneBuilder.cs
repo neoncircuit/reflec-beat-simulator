@@ -123,30 +123,30 @@ namespace ReflecBeatSimulator.EditorTools
 
         private static Sprite EnsureRingSprite()
         {
-            Sprite existing = AssetDatabase.LoadAssetAtPath<Sprite>(RingSpritePath);
-            if (existing != null)
-                return existing;
-
             const int size = 128;
-            const float outerRadius = 54f;
-            const float innerRadius = 40f;
             var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
             texture.wrapMode = TextureWrapMode.Clamp;
             texture.filterMode = FilterMode.Bilinear;
 
-            Color clear = Color.clear;
-            Color white = Color.white;
             Vector2 center = new Vector2(size * 0.5f, size * 0.5f);
+            const float outer = 52f;
+            const float inner = 34f;
+            const float core = 22f;
 
             for (int y = 0; y < size; y++)
             {
                 for (int x = 0; x < size; x++)
                 {
-                    float distance = Vector2.Distance(center, new Vector2(x + 0.5f, y + 0.5f));
-                    if (distance <= outerRadius && distance >= innerRadius)
-                        texture.SetPixel(x, y, white);
+                    Vector2 point = new Vector2(x + 0.5f, y + 0.5f) - center;
+                    float hexDist = HexagonDistance(point);
+                    if (hexDist <= core)
+                        texture.SetPixel(x, y, new Color(1f, 1f, 1f, 0.85f));
+                    else if (hexDist <= outer && hexDist >= inner)
+                        texture.SetPixel(x, y, Color.white);
+                    else if (hexDist < inner && hexDist > core)
+                        texture.SetPixel(x, y, new Color(1f, 1f, 1f, 0.15f));
                     else
-                        texture.SetPixel(x, y, clear);
+                        texture.SetPixel(x, y, Color.clear);
                 }
             }
 
@@ -168,6 +168,14 @@ namespace ReflecBeatSimulator.EditorTools
             return AssetDatabase.LoadAssetAtPath<Sprite>(RingSpritePath);
         }
 
+        /// <summary>Approximate hexagon distance from center (flat-top).</summary>
+        private static float HexagonDistance(Vector2 point)
+        {
+            float x = Mathf.Abs(point.x);
+            float y = Mathf.Abs(point.y);
+            return Mathf.Max(x * 0.8660254f + y * 0.5f, y);
+        }
+
         private static Material EnsureRingMaterial()
         {
             Material existing = AssetDatabase.LoadAssetAtPath<Material>(RingMaterialPath);
@@ -182,11 +190,11 @@ namespace ReflecBeatSimulator.EditorTools
         private static (GameObject tap, GameObject longNote, GameObject vertical, GameObject top, GameObject bigBang)
             CreateNotePrefabs(Sprite ringSprite, Material ringMaterial)
         {
-            GameObject tap = CreateSingleNotePrefab("TapNote", ringSprite, ringMaterial, Color.white);
-            GameObject longNote = CreateSingleNotePrefab("LongNote", ringSprite, ringMaterial, new Color(0.4f, 1f, 0.4f));
-            GameObject vertical = CreateSingleNotePrefab("VerticalNote", ringSprite, ringMaterial, Color.cyan);
-            GameObject top = CreateSingleNotePrefab("TopNote", ringSprite, ringMaterial, new Color(1f, 0.9f, 0.2f));
-            GameObject bigBang = CreateSingleNotePrefab("BigBangNote", ringSprite, ringMaterial, new Color(1f, 0.4f, 0.4f));
+            GameObject tap = CreateSingleNotePrefab("TapNote", ringSprite, ringMaterial, DefaultVisualTheme.NoteTap);
+            GameObject longNote = CreateSingleNotePrefab("LongNote", ringSprite, ringMaterial, DefaultVisualTheme.NoteLong);
+            GameObject vertical = CreateSingleNotePrefab("VerticalNote", ringSprite, ringMaterial, DefaultVisualTheme.NoteVertical);
+            GameObject top = CreateSingleNotePrefab("TopNote", ringSprite, ringMaterial, DefaultVisualTheme.NoteTop);
+            GameObject bigBang = CreateSingleNotePrefab("BigBangNote", ringSprite, ringMaterial, DefaultVisualTheme.NoteBigBang);
 
             return (tap, longNote, vertical, top, bigBang);
         }
@@ -263,7 +271,7 @@ namespace ReflecBeatSimulator.EditorTools
         {
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
 
-            CreateMainCamera();
+            CreateMainCamera(menuScene: true);
             CreateTransitionManager();
             CreateApplicationBootstrapper();
             AudioSource audioSource = CreateAudioSource(clip);
@@ -276,7 +284,7 @@ namespace ReflecBeatSimulator.EditorTools
                 Debug.LogWarning("M1SceneBuilder: Failed to save CalibrationScene.");
         }
 
-        private static void CreateMainCamera()
+        private static void CreateMainCamera(bool menuScene = false)
         {
             var go = new GameObject("Main Camera");
             go.tag = "MainCamera";
@@ -284,7 +292,9 @@ namespace ReflecBeatSimulator.EditorTools
 
             var camera = go.AddComponent<Camera>();
             camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = new Color(0.1f, 0.1f, 0.1f, 1f);
+            camera.backgroundColor = menuScene
+                ? DefaultVisualTheme.MenuBackgroundDeep
+                : DefaultVisualTheme.Background;
             camera.orthographic = true;
             camera.orthographicSize = 5f;
             camera.nearClipPlane = 0.3f;
@@ -447,28 +457,28 @@ namespace ReflecBeatSimulator.EditorTools
             var panel = CreateUiPanel(canvas, "DuelPanel",
                 new Vector2(1f, 1f), new Vector2(1f, 1f),
                 new Vector2(-220f, -180f), new Vector2(400f, 320f), sprite);
-            panel.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.5f);
+            panel.GetComponent<Image>().color = DefaultVisualTheme.PanelSurface;
 
             Text playerHpText = CreateUiText(panel, "PlayerHpText", "Player HP: 100/100",
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -20f), new Vector2(380f, 40f), 24, TextAnchor.UpperCenter, font);
             Slider playerHpBar = CreateSlider(panel, "PlayerHpBar",
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -60f), new Vector2(360f, 30f), sprite, new Color(0.2f, 0.8f, 0.2f));
+                new Vector2(0f, -60f), new Vector2(360f, 30f), sprite, DefaultVisualTheme.PlayerHpFill);
 
             Text rivalHpText = CreateUiText(panel, "RivalHpText", "Rival HP: 100/100",
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -100f), new Vector2(380f, 40f), 24, TextAnchor.UpperCenter, font);
             Slider rivalHpBar = CreateSlider(panel, "RivalHpBar",
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -140f), new Vector2(360f, 30f), sprite, new Color(0.9f, 0.2f, 0.2f));
+                new Vector2(0f, -140f), new Vector2(360f, 30f), sprite, DefaultVisualTheme.RivalHpFill);
 
             Text gaugeText = CreateUiText(panel, "GaugeText", "Gauge: 0/100",
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -180f), new Vector2(380f, 40f), 24, TextAnchor.UpperCenter, font);
             Slider gaugeBar = CreateSlider(panel, "GaugeBar",
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -220f), new Vector2(360f, 30f), sprite, new Color(1f, 0.9f, 0.2f));
+                new Vector2(0f, -220f), new Vector2(360f, 30f), sprite, DefaultVisualTheme.GaugeFill);
 
             Button reflectButton = CreateButton(panel, "ReflectButton", "Reflect",
                 new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
@@ -512,7 +522,7 @@ namespace ReflecBeatSimulator.EditorTools
 
             var background = go.AddComponent<Image>();
             background.sprite = sprite;
-            background.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+            background.color = DefaultVisualTheme.SliderTrack;
 
             var fillGo = new GameObject("Fill", typeof(RectTransform));
             fillGo.transform.SetParent(go.transform, false);
@@ -614,7 +624,7 @@ namespace ReflecBeatSimulator.EditorTools
         {
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
 
-            CreateMainCamera();
+            CreateMainCamera(menuScene: true);
             CreateTransitionManager();
             CreateApplicationBootstrapper();
 
@@ -765,7 +775,7 @@ namespace ReflecBeatSimulator.EditorTools
 
             var image = root.AddComponent<Image>();
             image.sprite = sprite;
-            image.color = new Color(0.2f, 0.22f, 0.28f, 0.95f);
+            image.color = DefaultVisualTheme.ChartCard;
 
             var button = root.AddComponent<Button>();
             button.targetGraphic = image;
@@ -957,7 +967,7 @@ namespace ReflecBeatSimulator.EditorTools
             var t = go.AddComponent<Text>();
             t.text = text;
             t.fontSize = fontSize;
-            t.color = Color.white;
+            t.color = DefaultVisualTheme.TextPrimary;
             t.alignment = alignment;
             t.raycastTarget = false;
             if (font != null)
@@ -986,7 +996,7 @@ namespace ReflecBeatSimulator.EditorTools
 
             var image = go.AddComponent<Image>();
             image.sprite = sprite;
-            image.color = new Color(0f, 0f, 0f, 0.8f);
+            image.color = DefaultVisualTheme.PanelSurface;
 
             return go;
         }
@@ -1013,7 +1023,7 @@ namespace ReflecBeatSimulator.EditorTools
 
             var image = go.AddComponent<Image>();
             image.sprite = sprite;
-            image.color = Color.white;
+            image.color = DefaultVisualTheme.ButtonSurface;
 
             var button = go.AddComponent<Button>();
             button.targetGraphic = image;

@@ -9,14 +9,33 @@ namespace ReflecBeatSimulator.Gameplay
     public readonly struct TouchData
     {
         public readonly int TouchId;
+        /// <summary>
+        /// Horizontal position. When <see cref="IsScreenSpace"/> is true this is x / Screen.width;
+        /// otherwise it is already playfield-normalized (0–1 on the judgment line).
+        /// </summary>
         public readonly float NormalizedX;
+        public readonly Vector2 ScreenPosition;
         public readonly double DspTime;
+        public readonly bool IsScreenSpace;
 
-        public TouchData(int touchId, float normalizedX, double dspTime)
+        /// <summary>Creates a playfield-space touch (e.g. autoplay / synthetic).</summary>
+        public TouchData(int touchId, float playfieldX, double dspTime)
         {
             TouchId = touchId;
-            NormalizedX = normalizedX;
+            NormalizedX = playfieldX;
+            ScreenPosition = default;
             DspTime = dspTime;
+            IsScreenSpace = false;
+        }
+
+        /// <summary>Creates a screen-space touch from EnhancedTouch.</summary>
+        public TouchData(int touchId, Vector2 screenPosition, double dspTime)
+        {
+            TouchId = touchId;
+            ScreenPosition = screenPosition;
+            NormalizedX = Screen.width > 0 ? screenPosition.x / Screen.width : 0.5f;
+            DspTime = dspTime;
+            IsScreenSpace = true;
         }
     }
 
@@ -48,28 +67,16 @@ namespace ReflecBeatSimulator.Gameplay
 
         private void HandleFingerDown(Finger finger)
         {
-            Vector2 screenPos = finger.screenPosition;
             var touch = finger.currentTouch;
             int touchId = touch.valid ? touch.touchId : finger.index;
-            var data = new TouchData(
-                touchId,
-                screenPos.x / Screen.width,
-                AudioSettings.dspTime);
-
-            OnTouchBegan?.Invoke(data);
+            OnTouchBegan?.Invoke(new TouchData(touchId, finger.screenPosition, AudioSettings.dspTime));
         }
 
         private void HandleFingerUp(Finger finger)
         {
-            Vector2 screenPos = finger.screenPosition;
             var touch = finger.currentTouch;
             int touchId = touch.valid ? touch.touchId : finger.index;
-            var data = new TouchData(
-                touchId,
-                screenPos.x / Screen.width,
-                AudioSettings.dspTime);
-
-            OnTouchEnded?.Invoke(data);
+            OnTouchEnded?.Invoke(new TouchData(touchId, finger.screenPosition, AudioSettings.dspTime));
         }
     }
 }

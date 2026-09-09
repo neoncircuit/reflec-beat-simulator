@@ -1,3 +1,4 @@
+using System.Collections;
 using ReflecBeatSimulator.Core;
 using ReflecBeatSimulator.UI;
 using UnityEngine;
@@ -5,7 +6,7 @@ using UnityEngine.UI;
 
 namespace ReflecBeatSimulator.Gameplay
 {
-    /// <summary>Plain-text results panel shown at the end of a chart.</summary>
+    /// <summary>Cinematic soft-card results panel shown at the end of a chart.</summary>
     public sealed class ResultsUI : MonoBehaviour
     {
         [SerializeField] private GameObject _panel;
@@ -14,15 +15,33 @@ namespace ReflecBeatSimulator.Gameplay
         [SerializeField] private Button _retryButton;
         [SerializeField] private Button _backButton;
 
-        private const float ButtonWidth = 240f;
-        private const float ButtonHeight = 56f;
+        private const float ButtonWidth = 280f;
+        private const float ButtonHeight = 60f;
+        private const float GradePopDuration = 0.20f;
+        private const float GradePopScale = 1.14f;
+
+        private RectTransform _resultRect;
+        private Coroutine _gradePop;
+        private Image _dimmer;
 
         private void Awake()
         {
+            EnsureDimmer();
             EnsureButtons();
 
             if (_panelFade == null && _panel != null)
                 _panelFade = _panel.GetComponent<PanelFadeSlide>();
+
+            _panelFade?.Configure(DefaultVisualTheme.PanelShowDuration, DefaultVisualTheme.PanelHiddenOffset);
+
+            if (_resultText != null)
+            {
+                _resultRect = _resultText.GetComponent<RectTransform>();
+                _resultText.color = DefaultVisualTheme.MenuText;
+                _resultText.supportRichText = true;
+            }
+
+            ApplyPanelTheme();
         }
 
         public void Show(Score score)
@@ -37,6 +56,9 @@ namespace ReflecBeatSimulator.Gameplay
 
         public void Show(Score score, DuelOutcome? outcome, SyncReport syncReport)
         {
+            if (_dimmer != null)
+                _dimmer.gameObject.SetActive(true);
+
             if (_panel != null)
                 _panel.SetActive(true);
 
@@ -45,23 +67,74 @@ namespace ReflecBeatSimulator.Gameplay
             if (_resultText == null)
                 return;
 
+            string clearLine = score.MissCount == 0
+                ? $"<size=42><color=#{ColorUtility.ToHtmlStringRGB(DefaultVisualTheme.MenuAccent)}><b>CLEAR!!</b></color></size>\n"
+                : $"<size=42><color=#{ColorUtility.ToHtmlStringRGB(DefaultVisualTheme.MenuAccentAlt)}><b>RESULT</b></color></size>\n";
+
             string outcomeLine = outcome.HasValue
-                ? $"<size=48><color={ColorForOutcome(outcome.Value)}><b>{outcome.Value.ToString().ToUpperInvariant()}</b></color></size>\n"
+                ? $"<size=36><color={DefaultVisualTheme.HexForOutcome(outcome.Value)}><b>{outcome.Value.ToString().ToUpperInvariant()}</b></color></size>\n"
                 : string.Empty;
 
-            string gradeLine = $"<size=36><b>Grade {score.Grade}</b></size>\n";
+            string gradeLine =
+                $"<size=40><b>RANK  {score.Grade}</b></size>    " +
+                $"<size=34><color=#{ColorUtility.ToHtmlStringRGB(DefaultVisualTheme.MenuAccentAlt)}>" +
+                $"AR  {score.AchievementRate:F1}%</color></size>\n\n";
 
             string syncLine = syncReport != null
-                ? $"Sync Check\nMax timing delta: {syncReport.MaxTimingDeltaMs:F2} ms\nMax clock drift: {syncReport.MaxClockDriftMs:F2} ms\nMisses: {syncReport.MissedNotes}\n{(syncReport.IsWithinTarget() ? "WITHIN TARGET" : "OUTSIDE TARGET")}\n\n"
+                ? $"<size=22>Sync Check — max Δ {syncReport.MaxTimingDeltaMs:F1} ms · " +
+                  $"drift {syncReport.MaxClockDriftMs:F1} ms · misses {syncReport.MissedNotes} · " +
+                  $"{(syncReport.IsWithinTarget() ? "WITHIN TARGET" : "OUTSIDE TARGET")}</size>\n\n"
                 : string.Empty;
+
+            string just = DefaultVisualTheme.HexForGrade(Judgment.Just);
+            string great = DefaultVisualTheme.HexForGrade(Judgment.Great);
+            string good = DefaultVisualTheme.HexForGrade(Judgment.Good);
+            string miss = DefaultVisualTheme.HexForGrade(Judgment.Miss);
 
             _resultText.text =
                 syncLine +
+                clearLine +
                 outcomeLine +
                 gradeLine +
-                $"Achievement Rate: {score.AchievementRate:F2}%\n" +
-                $"JUST {score.JustCount}  GREAT {score.GreatCount}  GOOD {score.GoodCount}  MISS {score.MissCount}\n" +
-                $"Max Combo: {score.MaxCombo}";
+                $"<color={just}>JUST</color>  {score.JustCount}     " +
+                $"<color={great}>GREAT</color>  {score.GreatCount}     " +
+                $"<color={good}>GOOD</color>  {score.GoodCount}     " +
+                $"<color={miss}>MISS</color>  {score.MissCount}\n\n" +
+                $"<b>MAX COMBO</b>  {score.MaxCombo}";
+
+            PopGrade();
+        }
+
+        private void EnsureDimmer()
+        {
+            if (_panel == null || _dimmer != null)
+                return;
+
+            Transform parent = _panel.transform.parent;
+            if (parent == null)
+                return;
+
+            Transform existing = parent.Find("ResultsDimmer");
+            if (existing != null)
+            {
+                _dimmer = existing.GetComponent<Image>();
+                return;
+            }
+
+            var go = new GameObject("ResultsDimmer");
+            go.transform.SetParent(parent, false);
+            go.transform.SetSiblingIndex(_panel.transform.GetSiblingIndex());
+
+            var rect = go.AddComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            _dimmer = go.AddComponent<Image>();
+            _dimmer.color = new Color(0.05f, 0.08f, 0.12f, 0.55f);
+            _dimmer.raycastTarget = true;
+            go.SetActive(false);
         }
 
         private void EnsureButtons()
@@ -74,21 +147,31 @@ namespace ReflecBeatSimulator.Gameplay
                 _retryButton = CreateButton(
                     "RetryButton",
                     "RETRY",
-                    new Vector2(0f, -100f),
-                    () => TransitionManager.LoadScene("GameplayScene"));
+                    new Vector2(-150f, -150f),
+                    () => TransitionManager.LoadScene("GameplayScene"),
+                    accent: false);
             }
 
             if (_backButton == null)
             {
                 _backButton = CreateButton(
                     "BackButton",
-                    "BACK",
-                    new Vector2(0f, -170f),
-                    () => TransitionManager.LoadScene("ChartSelectScene"));
+                    "MUSIC SELECT",
+                    new Vector2(150f, -150f),
+                    () => TransitionManager.LoadScene("ChartSelectScene"),
+                    accent: true);
             }
+
+            UiChrome.StyleMenuButton(_retryButton);
+            UiChrome.StyleMenuButton(_backButton, accent: true);
         }
 
-        private Button CreateButton(string name, string label, Vector2 anchoredPosition, UnityEngine.Events.UnityAction onClick)
+        private Button CreateButton(
+            string name,
+            string label,
+            Vector2 anchoredPosition,
+            UnityEngine.Events.UnityAction onClick,
+            bool accent)
         {
             var buttonGo = new GameObject(name);
             buttonGo.transform.SetParent(_panel.transform, false);
@@ -101,12 +184,11 @@ namespace ReflecBeatSimulator.Gameplay
             rect.sizeDelta = new Vector2(ButtonWidth, ButtonHeight);
 
             var image = buttonGo.AddComponent<Image>();
-            image.color = new Color(0.2f, 0.2f, 0.25f, 0.9f);
+            image.color = accent ? DefaultVisualTheme.MenuAccent : DefaultVisualTheme.MenuCardAlt;
 
             var button = buttonGo.AddComponent<Button>();
             button.targetGraphic = image;
             button.onClick.AddListener(onClick);
-
             buttonGo.AddComponent<ButtonScaleEffect>();
 
             var textGo = new GameObject("Text");
@@ -121,7 +203,8 @@ namespace ReflecBeatSimulator.Gameplay
             var text = textGo.AddComponent<Text>();
             text.text = label;
             text.fontSize = 24;
-            text.color = Color.white;
+            text.fontStyle = FontStyle.Bold;
+            text.color = accent ? Color.white : DefaultVisualTheme.MenuText;
             text.alignment = TextAnchor.MiddleCenter;
 
             if (_resultText != null)
@@ -130,17 +213,58 @@ namespace ReflecBeatSimulator.Gameplay
             return button;
         }
 
-        private static string ColorForOutcome(DuelOutcome outcome)
+        private void ApplyPanelTheme()
         {
-            switch (outcome)
+            if (_panel == null)
+                return;
+
+            // Enlarge card for cinematic results layout.
+            var rect = _panel.GetComponent<RectTransform>();
+            if (rect != null)
             {
-                case DuelOutcome.Win:
-                    return "#00FF00FF";
-                case DuelOutcome.Lose:
-                    return "#FF0000FF";
-                default:
-                    return "#FFFFFFFF";
+                rect.sizeDelta = new Vector2(900f, 520f);
             }
+
+            UiChrome.StyleSoftCard(_panel, 3.5f);
+            UiChrome.ApplyHeaderBanner(_panel, "RESULT", _resultText != null ? _resultText.font : null);
+        }
+
+        private void PopGrade()
+        {
+            if (_resultRect == null)
+                return;
+
+            if (_gradePop != null)
+                StopCoroutine(_gradePop);
+
+            _gradePop = StartCoroutine(GradePopRoutine());
+        }
+
+        private IEnumerator GradePopRoutine()
+        {
+            _resultRect.localScale = Vector3.one * 0.96f;
+            Vector3 target = Vector3.one * GradePopScale;
+            float elapsed = 0f;
+
+            while (elapsed < GradePopDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / GradePopDuration);
+                _resultRect.localScale = Vector3.Lerp(Vector3.one * 0.96f, target, t);
+                yield return null;
+            }
+
+            elapsed = 0f;
+            while (elapsed < GradePopDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / GradePopDuration);
+                _resultRect.localScale = Vector3.Lerp(target, Vector3.one, t);
+                yield return null;
+            }
+
+            _resultRect.localScale = Vector3.one;
+            _gradePop = null;
         }
     }
 }

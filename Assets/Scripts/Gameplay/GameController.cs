@@ -288,8 +288,9 @@ namespace ReflecBeatSimulator.Gameplay
                 return;
 
             double adjustedTouchTime = ToSongTime(touch.DspTime);
+            float playfieldX = ResolvePlayfieldX(touch);
             var candidates = CollectUnjudgedCandidates();
-            var result = Judge.JudgeTouch(adjustedTouchTime, touch.NormalizedX, candidates);
+            var result = Judge.JudgeTouch(adjustedTouchTime, playfieldX, candidates);
 
             if (!result.HasValue)
                 return;
@@ -332,6 +333,17 @@ namespace ReflecBeatSimulator.Gameplay
             Judgment releaseGrade = Judge.JudgeRelease(adjustedReleaseTime, held.note);
             Judgment finalGrade = Judge.Worse(held.headGrade, releaseGrade);
             ApplyJudgment(held.note, finalGrade);
+        }
+
+        private float ResolvePlayfieldX(TouchData touch)
+        {
+            if (!touch.IsScreenSpace)
+                return touch.NormalizedX;
+
+            if (_playfield != null)
+                return _playfield.ScreenToNormalizedX(touch.ScreenPosition, Camera.main);
+
+            return touch.NormalizedX;
         }
 
         private IEnumerable<Note> CollectUnjudgedCandidates()
@@ -463,23 +475,35 @@ namespace ReflecBeatSimulator.Gameplay
                 _duelState.OnPlayerJudgment(note, grade);
 
             _gameplayUI?.SetScore(_score);
-            _gameplayUI?.ShowJudgment(grade);
+
+            Vector3? judgmentWorldPos = null;
 
             if (_playfield != null)
             {
                 if (note.Type == NoteType.Top)
                 {
+                    Vector3 pos = _playfield.GetTopWorldPosition(note.Zone);
+                    pos.y += Constants.JudgmentTextWorldOffsetY;
+                    judgmentWorldPos = pos;
+
                     _playfield.FlashTopCircle(note.Zone, grade);
                     _hitFeedback?.Play(_playfield.GetTopWorldPosition(note.Zone), ColorForGrade(grade));
                 }
                 else
                 {
+                    float visualX = GetVisualX(note);
+                    Vector3 pos = _playfield.GetWorldPosition(visualX);
+                    pos.y += Constants.JudgmentTextWorldOffsetY;
+                    judgmentWorldPos = pos;
+
                     _playfield.FlashJudgmentLine(grade);
-                    Vector3 feedbackPos = _playfield.GetWorldPosition(GetVisualX(note));
+                    Vector3 feedbackPos = _playfield.GetWorldPosition(visualX);
                     feedbackPos.z = -0.1f;
                     _hitFeedback?.Play(feedbackPos, ColorForGrade(grade));
                 }
             }
+
+            _gameplayUI?.ShowJudgment(grade, judgmentWorldPos);
 
             SyncDuelUI();
 
@@ -651,19 +675,7 @@ namespace ReflecBeatSimulator.Gameplay
 
         private static Color ColorForGrade(Judgment grade)
         {
-            switch (grade)
-            {
-                case Judgment.Just:
-                    return new Color(1f, 0.84f, 0f);
-                case Judgment.Great:
-                    return Color.green;
-                case Judgment.Good:
-                    return Color.cyan;
-                case Judgment.Miss:
-                    return Color.red;
-                default:
-                    return Color.white;
-            }
+            return DefaultVisualTheme.ColorForGrade(grade);
         }
 
         private static int CountPlayerNotes(List<Note> notes)

@@ -20,6 +20,9 @@ namespace ReflecBeatSimulator.Core
         /// <summary>Default note approach time in seconds.</summary>
         public const double DefaultApproachTime = 1.0;
 
+        /// <summary>Vertical world-space offset for judgment feedback text above the judgement line.</summary>
+        public const float JudgmentTextWorldOffsetY = 0.6f;
+
         /// <summary>
         /// Available approach-time presets, in seconds. Smaller values make notes
         /// scroll faster; larger values make them scroll slower.

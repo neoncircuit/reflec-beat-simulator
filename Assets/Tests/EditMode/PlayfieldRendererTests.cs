@@ -1,6 +1,8 @@
 using System.Reflection;
 using NUnit.Framework;
+using ReflecBeatSimulator.Core;
 using ReflecBeatSimulator.Gameplay;
+using ReflecBeatSimulator.UI;
 using UnityEngine;
 
 namespace ReflecBeatSimulator.Tests
@@ -88,6 +90,66 @@ namespace ReflecBeatSimulator.Tests
             Object.DestroyImmediate(playfield.gameObject);
         }
 
+        [Test]
+        public void FlashTopCircle_Great_SetsCircleColorToThemeGreat()
+        {
+            PlayfieldRenderer playfield = CreatePlayfield(width: 10f, judgmentLineY: -4f);
+            Color expected = DefaultVisualTheme.ColorForGrade(Judgment.Great);
+
+            playfield.FlashTopCircle(1, Judgment.Great);
+
+            Transform topCircle = playfield.transform.Find("TopCircle1");
+            Assert.That(topCircle, Is.Not.Null, "TopCircle1 child not found.");
+            var renderer = topCircle.GetComponent<LineRenderer>();
+            Assert.That(renderer, Is.Not.Null, "TopCircle1 has no LineRenderer.");
+            Assert.That(renderer.startColor.r, Is.EqualTo(expected.r).Within(0.1f));
+            Assert.That(renderer.startColor.g, Is.EqualTo(expected.g).Within(0.1f));
+            Assert.That(renderer.startColor.b, Is.EqualTo(expected.b).Within(0.1f));
+            Assert.That(renderer.startColor.a, Is.EqualTo(expected.a).Within(0.1f));
+
+            Object.DestroyImmediate(playfield.gameObject);
+        }
+
+        [Test]
+        public void Awake_CreatesPlayfieldFrameSegments()
+        {
+            PlayfieldRenderer playfield = CreatePlayfield(width: 10f, judgmentLineY: -4f);
+
+            Assert.That(playfield.transform.Find("FrameLeft"), Is.Not.Null);
+            Assert.That(playfield.transform.Find("FrameRight"), Is.Not.Null);
+            Assert.That(playfield.transform.Find("FrameTop"), Is.Not.Null);
+            Assert.That(playfield.transform.Find("FrameBottom"), Is.Not.Null);
+            Assert.That(playfield.transform.Find("OuterFrameLeft"), Is.Not.Null);
+            Assert.That(playfield.transform.Find("PlayfieldTopWash"), Is.Not.Null);
+            Assert.That(playfield.transform.Find("CornerBL"), Is.Not.Null);
+
+            Object.DestroyImmediate(playfield.gameObject);
+        }
+
+        [Test]
+        public void ScreenToNormalizedX_MapsWorldAlignedScreenPointToPlayfieldX()
+        {
+            PlayfieldRenderer playfield = CreatePlayfield(width: 10f, judgmentLineY: -4f);
+            var cameraGo = new GameObject("TestCamera");
+            var camera = cameraGo.AddComponent<Camera>();
+            camera.orthographic = true;
+            camera.orthographicSize = 5f;
+            camera.transform.position = new Vector3(0f, 0f, -10f);
+
+            // World X = 0 should be playfield 0.5
+            Vector3 screenCenter = camera.WorldToScreenPoint(new Vector3(0f, -4f, 0f));
+            float xCenter = playfield.ScreenToNormalizedX(screenCenter, camera);
+            Assert.That(xCenter, Is.EqualTo(0.5f).Within(0.02f));
+
+            // World X = -2.5 (playfield 0.25)
+            Vector3 screenLeft = camera.WorldToScreenPoint(new Vector3(-2.5f, -4f, 0f));
+            float xLeft = playfield.ScreenToNormalizedX(screenLeft, camera);
+            Assert.That(xLeft, Is.EqualTo(0.25f).Within(0.02f));
+
+            Object.DestroyImmediate(cameraGo);
+            Object.DestroyImmediate(playfield.gameObject);
+        }
+
         private static PlayfieldRenderer CreatePlayfield(float width, float judgmentLineY, float spawnY = 5f,
             float topJudgmentLineY = -2.5f, float topSpawnY = 5f)
         {
@@ -99,6 +161,13 @@ namespace ReflecBeatSimulator.Tests
             SetPrivateField(playfield, "_spawnY", spawnY);
             SetPrivateField(playfield, "_topJudgmentLineY", topJudgmentLineY);
             SetPrivateField(playfield, "_topSpawnY", topSpawnY);
+
+            // EditMode tests do not call Awake automatically; build visuals explicitly.
+            if (playfield.transform.Find("TopCircle0") == null)
+            {
+                MethodInfo awake = playfield.GetType().GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance);
+                awake?.Invoke(playfield, null);
+            }
 
             return playfield;
         }

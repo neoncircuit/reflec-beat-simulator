@@ -40,9 +40,17 @@
 ## Later / out of scope until M3 is done
 
 - [x] CI/CD scaffolding (linting, security scan, dependabot)
-- Visual polish / themes
 - iOS build support
 - Online / versus features
+- User-selectable multi-theme packs (after default identity exists)
+
+## Original visual identity (default presentation)
+
+- [x] Shared `DefaultVisualTheme` palette and motion timings
+- [x] Session transitions (Chart Select enter, Results/Calibration panel motion, HUD fade-in)
+- [x] Playfield frame + accent band; hex note silhouette; themed HUD/Duel/menus
+- [x] World-space judgment text, gold-only bounce glow, no lane dividers
+- [x] Docs updated (homage framing; not Konami visuals)
 
 ## M4 — Single-player vs CPU rival (completed)
 
@@ -93,8 +101,12 @@
 
 ## M8 — Device verification & build hardening
 
-- [ ] Verify calibration tap deltas on Galaxy Tab (checklist: `docs/device-verification.md`)
-- [ ] Verify audio-sync feel on device with autoplay
+Build settings / signed APK: done. On-device Tab checks: **defer until Editor
+playability is accepted** (see `docs/device-verification.md` — not for daily
+reinstall loops).
+
+- [ ] Verify calibration tap deltas on Galaxy Tab (checklist: `docs/device-verification.md`) — late gate
+- [ ] Verify audio-sync feel on device with autoplay — late gate
 - [x] Lock Android player settings (orientation, package name, DSP buffer size)
 - [x] Create reproducible signed-APK build step
 - [x] Document build/device-check instructions

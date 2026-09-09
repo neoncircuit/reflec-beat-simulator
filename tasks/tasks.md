@@ -11,7 +11,7 @@ A running list of work items for the Reflec Beat Simulator.
 | 5 | M0: `SongClock` EditMode tests | Completed | Fake clock seam, smoothing, snap behavior. |
 | 6 | M0: Calibration scripts | Completed | Controller, UI, store (JSON), beat marker. |
 | 7 | M0: Wire `CalibrationScene` in Unity | Completed | Scene built via `Reflec Beat / Build M1 Scenes`. |
-| 8 | M0: Verify metronome sync on device | Pending | Requires Galaxy Tab build. |
+| 8 | M0: Verify metronome sync on device | Pending | Late gate after Editor playability; see `docs/device-verification.md`. |
 | 9 | M1: Core chart model + timing/judge/score | Completed | Pure C#, EditMode tests first. |
 | 10 | M1: Gameplay loop + scene | Completed | `NoteObject`, `PlayfieldRenderer`, `TouchInput`, `GameController`. Scene built via editor tool. |
 | 11 | M1: Delete old prototype scripts | Completed | `NoteData`, `Note`, `TargetZone`, `UIManager`, old `GameController` removed. |
@@ -34,9 +34,10 @@ A running list of work items for the Reflec Beat Simulator.
 | 26 | M7: Chart-select visual redesign | Completed | Committed in `fdd0d05` (M7). |
 | 27 | M7: Scene and UI transitions | Completed | `TransitionManager` wired into all scenes via `M1SceneBuilder`. |
 | 28 | M7: Note visibility + hit feedback polish | Completed | Committed in `fdd0d05` (M7). |
-| 29 | M8: Galaxy Tab calibration verification | Pending | Requires device; checklist ready in `docs/device-verification.md`. |
+| 29 | M8: Galaxy Tab calibration verification | Pending | Late gate — not daily reinstalls; checklist in `docs/device-verification.md`. |
 | 30 | M8: Android build settings + signed APK | Completed | Signed APK built and verified (`com.neoncircuit.reflecbeat` v0.8.0, `CN=neoncircuit dev` signer, INTERNET-only manifest). See `docs/build-and-sign.md`. |
 | 31 | M9: Authoring docs + demo charts | Pending | Improve `docs/authoring.md` and add tutorial charts. |
+| 32 | Original visual identity (default theme) | Completed | `DefaultVisualTheme`, session transitions, framed playfield, hex notes, themed HUD/menus. Homage framing; not Konami visuals. |
 
 ## Legend
 

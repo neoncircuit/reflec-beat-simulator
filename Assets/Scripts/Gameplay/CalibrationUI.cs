@@ -22,12 +22,18 @@ namespace ReflecBeatSimulator.Gameplay
 
         private const double NudgeStepSec = 0.005;
 
+        private void Awake()
+        {
+            if (_donePanelFade == null && _doneGroup != null)
+                _donePanelFade = _doneGroup.GetComponent<PanelFadeSlide>();
+
+            _donePanelFade?.Configure(DefaultVisualTheme.PanelShowDuration, DefaultVisualTheme.PanelHiddenOffset);
+            ApplyTheme();
+        }
+
         private void Start()
         {
             _controller = FindObjectOfType<CalibrationController>();
-
-            if (_donePanelFade == null && _doneGroup != null)
-                _donePanelFade = _doneGroup.GetComponent<PanelFadeSlide>();
 
             if (_retryButton != null)
                 _retryButton.onClick.AddListener(OnRetry);
@@ -100,6 +106,34 @@ namespace ReflecBeatSimulator.Gameplay
 
             if (_doneGroup != null)
                 _doneGroup.SetActive(visible);
+        }
+
+        private void ApplyTheme()
+        {
+            Canvas canvas = GetComponentInParent<Canvas>();
+            UiChrome.EnsureMenuBackdrop(canvas);
+
+            Camera cam = Camera.main;
+            if (cam != null)
+                cam.backgroundColor = DefaultVisualTheme.MenuBackgroundDeep;
+
+            StyleMenuText(_instructionText);
+            StyleMenuText(_lastDeltaText);
+            StyleMenuText(_averageText);
+            StyleMenuText(_storedOffsetText);
+            UiChrome.StyleMenuButton(_retryButton);
+            UiChrome.StyleMenuButton(_doneButton, accent: true);
+            UiChrome.StyleMenuButton(_nudgeUpButton);
+            UiChrome.StyleMenuButton(_nudgeDownButton);
+
+            if (_doneGroup != null)
+                UiChrome.StyleSoftCard(_doneGroup, 3f);
+        }
+
+        private static void StyleMenuText(Text text)
+        {
+            if (text != null)
+                text.color = DefaultVisualTheme.MenuText;
         }
 
         private void OnRetry() => _controller?.Retry();

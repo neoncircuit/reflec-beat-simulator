@@ -18,7 +18,7 @@ namespace ReflecBeatSimulator.UI
         private static TransitionManager _instance;
         private bool _isFading;
 
-        private const float DefaultDuration = 0.25f;
+        private const float DefaultDuration = 0.30f;
 
         private void Awake()
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using ReflecBeatSimulator.Core;
 using ReflecBeatSimulator.Gameplay;
@@ -7,7 +8,7 @@ using UnityEngine.UI;
 
 namespace ReflecBeatSimulator.UI
 {
-    /// <summary>Renders the chart-select list and option toggles.</summary>
+    /// <summary>Cinematic soft-card chart-select list and option toggles.</summary>
     public sealed class ChartSelectUI : MonoBehaviour
     {
         [SerializeField] private Text _titleText;
@@ -20,26 +21,19 @@ namespace ReflecBeatSimulator.UI
         [SerializeField] private Text _approachTimeLabel;
         [SerializeField] private Button _approachTimePrevButton;
         [SerializeField] private Button _approachTimeNextButton;
+        [SerializeField] private PanelFadeSlide _rootFade;
+        [SerializeField] private CanvasGroup _rootCanvasGroup;
 
         private readonly List<GameObject> _buttons = new List<GameObject>();
         private int _approachTimeIndex;
 
-        /// <summary>Invoked with the chart index when a chart button is pressed.</summary>
         public event Action<int> OnChartSelected;
-
-        /// <summary>Invoked when the Calibrate button is pressed.</summary>
         public event Action OnCalibrate;
 
-        /// <summary>Whether the autoplay toggle is on.</summary>
         public bool Autoplay => _autoplayToggle != null && _autoplayToggle.isOn;
-
-        /// <summary>Whether the sync-check toggle is on.</summary>
         public bool SyncCheck => _syncCheckToggle != null && _syncCheckToggle.isOn;
-
-        /// <summary>Whether rival note visuals should be hidden.</summary>
         public bool HideRivalVisuals => _hideRivalToggle != null && _hideRivalToggle.isOn;
 
-        /// <summary>The selected approach time in seconds.</summary>
         public double ApproachTime
         {
             get
@@ -49,6 +43,12 @@ namespace ReflecBeatSimulator.UI
 
                 return Constants.ApproachTimeOptions[_approachTimeIndex];
             }
+        }
+
+        private void Awake()
+        {
+            EnsureRootFade();
+            ApplyCinematicMenu();
         }
 
         private void Start()
@@ -64,6 +64,8 @@ namespace ReflecBeatSimulator.UI
 
             if (_approachTimeNextButton != null)
                 _approachTimeNextButton.onClick.AddListener(() => CycleApproachTime(1));
+
+            PlayEnterTransition();
         }
 
         private void OnDestroy()
@@ -78,7 +80,6 @@ namespace ReflecBeatSimulator.UI
                 _approachTimeNextButton.onClick.RemoveAllListeners();
         }
 
-        /// <summary>Applies stored settings to the UI controls.</summary>
         public void ApplySettings(SettingsStore.GameSettings settings)
         {
             if (settings == null)
@@ -124,7 +125,10 @@ namespace ReflecBeatSimulator.UI
         private void UpdateApproachTimeLabel()
         {
             if (_approachTimeLabel != null)
+            {
                 _approachTimeLabel.text = $"Approach: {ApproachTime:0.00}s";
+                _approachTimeLabel.color = DefaultVisualTheme.MenuText;
+            }
         }
 
         public void SetTitle(string title)
@@ -167,10 +171,11 @@ namespace ReflecBeatSimulator.UI
             GameObject button = Instantiate(_chartButtonPrefab, _content, false);
             button.name = $"ChartButton_{index}";
 
-            SetButtonText(button, "TitleText", title);
-            SetButtonText(button, "ArtistText", artist);
-            SetButtonText(button, "DifficultyText", difficulty);
-            SetButtonText(button, "BestText", best);
+            SetButtonText(button, "TitleText", title, DefaultVisualTheme.MenuText, 30, FontStyle.Bold);
+            SetButtonText(button, "ArtistText", artist, DefaultVisualTheme.MenuTextMuted, 22, FontStyle.Normal);
+            SetButtonText(button, "DifficultyText", difficulty, DefaultVisualTheme.MenuAccent, 22, FontStyle.Bold);
+            SetButtonText(button, "BestText", best, DefaultVisualTheme.MenuAccentAlt, 20, FontStyle.Normal);
+            UiChrome.StyleChartCard(button);
 
             var buttonComponent = button.GetComponent<Button>();
             if (buttonComponent != null)
@@ -180,21 +185,31 @@ namespace ReflecBeatSimulator.UI
             }
 
             _buttons.Add(button);
-            Debug.Log($"ChartSelectUI: added button '{title}' at index {index}.");
+            StartCoroutine(FadeInCard(button, index));
         }
 
-        private static void SetButtonText(GameObject button, string childName, string text)
+        private static void SetButtonText(
+            GameObject button,
+            string childName,
+            string text,
+            Color color,
+            int fontSize,
+            FontStyle style)
         {
             Transform child = button.transform.Find(childName);
             if (child == null)
                 return;
 
             var label = child.GetComponent<Text>();
-            if (label != null)
-                label.text = text ?? string.Empty;
+            if (label == null)
+                return;
+
+            label.text = text ?? string.Empty;
+            label.color = color;
+            label.fontSize = fontSize;
+            label.fontStyle = style;
         }
 
-        /// <summary>Enables or disables every chart button.</summary>
         public void SetInteractable(bool interactable)
         {
             foreach (GameObject button in _buttons)
@@ -206,6 +221,116 @@ namespace ReflecBeatSimulator.UI
                 if (buttonComponent != null)
                     buttonComponent.interactable = interactable;
             }
+        }
+
+        private void EnsureRootFade()
+        {
+            if (_rootFade != null)
+                return;
+
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
+                return;
+
+            if (_rootCanvasGroup == null)
+            {
+                _rootCanvasGroup = canvas.GetComponent<CanvasGroup>();
+                if (_rootCanvasGroup == null)
+                    _rootCanvasGroup = canvas.gameObject.AddComponent<CanvasGroup>();
+            }
+
+            _rootFade = canvas.GetComponent<PanelFadeSlide>();
+            if (_rootFade == null)
+                _rootFade = canvas.gameObject.AddComponent<PanelFadeSlide>();
+
+            _rootFade.Configure(DefaultVisualTheme.ChartSelectEnterDuration, new Vector2(0f, 36f));
+        }
+
+        private void PlayEnterTransition()
+        {
+            if (_rootFade == null)
+                return;
+
+            if (_rootCanvasGroup != null)
+                _rootCanvasGroup.alpha = 0f;
+
+            _rootFade.Show();
+        }
+
+        private void ApplyCinematicMenu()
+        {
+            Canvas canvas = GetComponentInParent<Canvas>();
+            UiChrome.EnsureMenuBackdrop(canvas);
+
+            Camera cam = Camera.main;
+            if (cam != null)
+                cam.backgroundColor = DefaultVisualTheme.MenuBackgroundDeep;
+
+            if (_titleText != null)
+            {
+                _titleText.color = DefaultVisualTheme.MenuText;
+                _titleText.fontStyle = FontStyle.Bold;
+                _titleText.fontSize = Mathf.Max(_titleText.fontSize, 48);
+                UiChrome.ApplyHeaderBanner(canvas != null ? canvas.gameObject : gameObject, "MUSIC SELECT", _titleText.font);
+                _titleText.gameObject.SetActive(false);
+            }
+
+            if (_approachTimeLabel != null)
+                _approachTimeLabel.color = DefaultVisualTheme.MenuText;
+
+            UiChrome.StyleMenuButton(_calibrateButton, accent: true);
+            UiChrome.StyleMenuButton(_approachTimePrevButton);
+            UiChrome.StyleMenuButton(_approachTimeNextButton);
+            ApplyToggleTheme(_autoplayToggle);
+            ApplyToggleTheme(_syncCheckToggle);
+            ApplyToggleTheme(_hideRivalToggle);
+        }
+
+        private static void ApplyToggleTheme(Toggle toggle)
+        {
+            if (toggle == null)
+                return;
+
+            var label = toggle.GetComponentInChildren<Text>();
+            if (label != null)
+                label.color = DefaultVisualTheme.MenuText;
+        }
+
+        private IEnumerator FadeInCard(GameObject button, int index)
+        {
+            var group = button.GetComponent<CanvasGroup>();
+            if (group == null)
+                group = button.AddComponent<CanvasGroup>();
+
+            RectTransform rect = button.GetComponent<RectTransform>();
+            Vector3 baseScale = Vector3.one;
+            group.alpha = 0f;
+            if (rect != null)
+                rect.localScale = baseScale * 0.94f;
+
+            float delay = index * DefaultVisualTheme.ChartCardStagger;
+            if (delay > 0f)
+                yield return new WaitForSecondsRealtime(delay);
+
+            float elapsed = 0f;
+            float duration = DefaultVisualTheme.ChartSelectEnterDuration;
+            while (elapsed < duration)
+            {
+                if (button == null)
+                    yield break;
+
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+                group.alpha = t;
+                if (rect != null)
+                    rect.localScale = Vector3.Lerp(baseScale * 0.94f, baseScale, t);
+                yield return null;
+            }
+
+            if (group != null)
+                group.alpha = 1f;
+            if (rect != null)
+                rect.localScale = baseScale;
         }
     }
 }

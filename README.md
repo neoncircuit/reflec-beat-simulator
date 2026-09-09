@@ -12,11 +12,12 @@ A fan-made, clean-room rhythm game for Android tablets inspired by Konami's *Ref
 - **M5 — Game feel & visual clarity pass**: complete. Approach-time / rival-visibility options, object pooling, sync-trust harness, calibration nudge, hit feedback polish, and clearer results.
 - **M6 — Persistence & session flow**: complete. Saved gameplay settings, per-chart high scores shown in chart select, and Retry/Back navigation from results.
 - **M7 — Visual feel & transitions**: complete. Chart-select redesign, scene/UI transitions, note visibility and hit feedback polish.
-- **M8 — Device verification & build hardening**: build half complete. Locked Android settings (package name, IL2CPP/ARM64, LandscapeLeft, Best-latency DSP), reproducible signed-APK pipeline (`./scripts/build-android.sh`, see `docs/build-and-sign.md`), headless EditMode runner (`./scripts/run-editmode-tests.sh`). On-device Galaxy Tab verification remains — checklist in `docs/device-verification.md`.
+- **Original visual identity**: complete. Shared default theme (teal/navy palette), hex note silhouette, framed playfield, Chart Select / Results / HUD transitions. Inspired by Reflec Beat's gameplay concept — not a Konami visual clone.
+- **M8 — Device verification & build hardening**: build half complete. Locked Android settings (package name, IL2CPP/ARM64, LandscapeLeft, Best-latency DSP), reproducible signed-APK pipeline (`./scripts/build-android.sh`, see `docs/build-and-sign.md`), headless EditMode runner (`./scripts/run-editmode-tests.sh`). On-device Galaxy Tab verification is a **late gate** after Editor playability — checklist in `docs/device-verification.md`.
 
 ## Legal note
 
-This project reimplements the gameplay concept only. It does **not** include any Konami copyrighted music, charts, artwork, fonts, or code. The bundled `PlaceholderBeat.wav` and `demo.rbchart.json` are original generated content. If you want to recreate official Reflec Beat patterns, you must obtain the rights or create original content.
+This project reimplements the gameplay concept only. It does **not** include any Konami copyrighted music, charts, artwork, fonts, or code. Presentation assets (palette, hex notes, UI chrome) are original. The bundled `PlaceholderBeat.wav` and `demo.rbchart.json` are original generated content. Konami is credited as the original designers of Reflec Beat; credit is not a license. If you want to recreate official Reflec Beat patterns, you must obtain the rights or create original content.
 
 ## Requirements
 
@@ -166,4 +167,4 @@ See [`docs/authoring.md`](./docs/authoring.md) for the full JSON reference, tick
 
 ## Next steps
 
-M8's build hardening is complete; what remains of M8 is the on-device Galaxy Tab verification (`docs/device-verification.md`). The roadmap then finishes with **M9 — Documentation & authoring** (authoring docs and demo charts). See `PRODUCT.md` for the full roadmap and `tasks/todo.md` for task trackers.
+Develop and judge feel in the **Unity Editor** first. M8 build hardening is already done; on-device Galaxy Tab verification (`docs/device-verification.md`) is a **late gate** after Editor playability — not a daily reinstall loop. Also remaining: **M9 — Documentation & authoring**. See `PRODUCT.md` and `tasks/todo.md`.
