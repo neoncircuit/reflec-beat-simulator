@@ -45,3 +45,13 @@ just points here.
 - Conflict between files → PRODUCT.md defines scope, DESIGN.md defines
   architecture, this file defines process. Newer explicit owner instructions
   in the conversation override all three.
+
+## Cursor Cloud specific instructions
+
+The Unity editor on this agent is version 2022.3.62f3. The program path is `/opt/unity/Editor/Unity`.
+
+Run EditMode tests with `./scripts/run-editmode-tests.sh`. The script uses the Linux editor when `/opt/unity/Editor/Unity` is present. On WSL it still uses the Windows editor.
+
+The `start` command activates a Unity Personal license. It reads `UNITY_EMAIL` and `UNITY_PASSWORD`.
+
+Do not report that audio sync is correct from the editor. Device checks are in `docs/device-verification.md`.
