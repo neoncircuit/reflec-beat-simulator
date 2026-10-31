@@ -32,4 +32,4 @@ This is a fan-made homage inspired by Konami's Reflec Beat gameplay *concept*. P
 - **Original visual identity**: complete / iterated. Soft cinematic menu cards (Chart Select / Results / Calibration) + dark neon play arena. Inspired by Plus *quality*, not Konami visuals.
 - **M8 — Device verification & build hardening**: build half complete (locked settings, signed-APK pipeline, headless tests — see [`build-and-sign.md`](./build-and-sign.md)); on-device Tab checks deferred until Editor feel is accepted ([`device-verification.md`](./device-verification.md)).
 
-See [`../tasks/todo.md`](../tasks/todo.md) and [`../PRODUCT.md`](../PRODUCT.md) for the full roadmap.
+See [`../PRODUCT.md`](../PRODUCT.md) for the full roadmap, [`../tasks/current_sprint.md`](../tasks/current_sprint.md) for the current sprint, and [`../tasks/todo.md`](../tasks/todo.md) for the backlog.

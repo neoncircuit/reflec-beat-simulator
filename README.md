@@ -29,7 +29,7 @@ The project is stored at `/mnt/d/GitHub/reflec-beat-simulator`. On Windows this 
 
 ## Project structure
 
-```
+```text
 Assets/
   Scripts/
     Audio/            # DSP-clock audio: AudioPlayback, SongClock, Metronome
@@ -110,7 +110,7 @@ locked setting has drifted.
 
 At runtime charts are read from the device:
 
-```
+```text
 Application.persistentDataPath/charts/
   <chart-folder>/
     song.rbchart.json
@@ -167,4 +167,4 @@ See [`docs/authoring.md`](./docs/authoring.md) for the full JSON reference, tick
 
 ## Next steps
 
-Develop and judge feel in the **Unity Editor** first. M8 build hardening is already done; on-device Galaxy Tab verification (`docs/device-verification.md`) is a **late gate** after Editor playability — not a daily reinstall loop. Also remaining: **M9 — Documentation & authoring**. See `PRODUCT.md` and `tasks/todo.md`.
+Develop and judge feel in the **Unity Editor** first. M8 build hardening is already done; on-device Galaxy Tab verification (`docs/device-verification.md`) is a **late gate** after Editor playability — not a daily reinstall loop. Also remaining: **M9 — Documentation & authoring**. See `PRODUCT.md`, `tasks/current_sprint.md` (current sprint), and `tasks/todo.md` (backlog).

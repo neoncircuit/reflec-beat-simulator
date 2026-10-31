@@ -1,7 +1,8 @@
 # CLAUDE.md
 
 Follow `AGENTS.md` — it is the canonical rules file for all coding agents in
-this repo. Context reading order: `PRODUCT.md` → `DESIGN.md` → `AGENTS.md`.
+this repo. Context reading order: `PRODUCT.md` → `DESIGN.md` → `AGENTS.md` →
+`tasks/current_sprint.md`.
 
 Claude-specific notes:
 
