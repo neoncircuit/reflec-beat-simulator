@@ -76,4 +76,5 @@ In **CalibrationScene**:
 ## Recording results
 
 Note the final `inputOffsetSec`, the device model/Android version, and any
-feel issues in `tasks/todo.md`, then mark tasks #8 and #29 Completed.
+feel issues in the task folder for this check (`tasks/active/<task-slug>/notes.md`),
+then mark the device items in the sprint task list as done.

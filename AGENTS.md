@@ -1,7 +1,7 @@
 # AGENTS.md — rules for coding agents in this repo
 
 Read order: `PRODUCT.md` (what & why) → `DESIGN.md` (architecture & specs) →
-this file (how to work). This file is canonical for agent behaviour; `CLAUDE.md`
+this file (how to work) → `tasks/current_sprint.md` (what to work on now). This file is canonical for agent behaviour; `CLAUDE.md`
 just points here.
 
 ## Hard guardrails
@@ -37,6 +37,17 @@ just points here.
   in one place (`Core/`), never magic numbers scattered in MonoBehaviours.
 - **Commits:** small and scoped; message states the milestone (e.g. `M1: ...`).
 - **Documentation Style**: When writing plans or documentation use: ASD-STE100 Simplified Technical English (STE for short).
+
+## Tasks
+
+- Read `tasks/current_sprint.md` before you start work. Work only on the tasks
+  that it lists.
+- A sprint is a part of one milestone. If the sprint and `PRODUCT.md` do not
+  agree, `PRODUCT.md` is correct.
+- `tasks/todo.md` is the backlog. Do not start backlog work unless the owner
+  tells you to. Put new work for later sprints there.
+- Keep `tasks/active/<task-slug>/` and `tasks/current_sprint.md` current while
+  you work. The layout and the sprint-close steps are in `tasks/index.md`.
 
 ## When unsure
 
