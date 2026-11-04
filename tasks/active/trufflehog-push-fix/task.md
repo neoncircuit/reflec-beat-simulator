@@ -16,7 +16,8 @@ a review.
 
 - [x] `security.yml` does not set the `base` and `head` inputs of TruffleHog
 - [x] The TruffleHog action is pinned to a release tag (`v3.99.8`)
-- [ ] "Secret scan" passes on a pull request with this change
+- [x] "Secret scan" passes on a pull request with this change (PR #8,
+  2026-11-04; see `notes.md`)
 - [ ] "Secret scan" passes on the push to `main` after the merge, and the
   log shows a scan of the pushed commits
 
@@ -28,8 +29,11 @@ a review.
 - [x] Reproduce the failing check with the old inputs, and check the
   event path with the new inputs (see `notes.md`)
 - [x] Remove `base` and `head`, and pin the action to `v3.99.8`
-- [ ] Owner: open and merge a PR with this change
-- [ ] Check the "Secret scan" log on `main` after the merge
+- [x] Open PR #8 with this change (2026-11-04)
+- [ ] Owner: merge PR #8
+- [ ] Check the "Secret scan" log on `main` after the merge. Expect a
+  `base` and a `head` that are not the same, `commits_scanned` above 0,
+  and success.
 
 ## Blockers
 

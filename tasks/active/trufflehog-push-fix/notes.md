@@ -38,3 +38,7 @@
 - The TruffleHog scanner was not run locally. The session did not get
   permission to download and run the release binary, and Docker is not
   available. The real check is the CI run on `main` after the merge.
+- PR #8, "Secret scan" run 41866264973 (head `f6303e4`): the action took
+  the `pull_request` event path. TruffleHog 3.99.8 scanned from `6ec8141`
+  (PR base) to `f6303e4` (PR head): 2 commits, 0 verified and 0
+  unverified secrets. Result: success.
