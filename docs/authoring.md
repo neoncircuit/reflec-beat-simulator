@@ -19,7 +19,7 @@ This guide describes how to create a `*.rbchart.json` chart from scratch and pre
 
 At runtime the simulator reads charts from:
 
-```
+```text
 Application.persistentDataPath/charts/<chart-folder>/
     <chart-name>.rbchart.json
     <audio-file referenced by meta.audioFile>
@@ -86,7 +86,7 @@ The top-level `rival` block is optional and only needed for duel charts.
 ### `meta`
 
 | Field | Type | Meaning |
-|---|---|---|
+| --- | --- | --- |
 | `title` | string | Song title shown in the chart list. |
 | `artist` | string | Song artist. |
 | `charter` | string | Person who wrote the chart. |
@@ -97,7 +97,7 @@ The top-level `rival` block is optional and only needed for duel charts.
 ### `timing`
 
 | Field | Type | Meaning |
-|---|---|---|
+| --- | --- | --- |
 | `ppq` | integer | Ticks per quarter note. The simulator expects `480`. |
 | `audioOffsetMs` | number | Where tick 0 occurs in the audio, in milliseconds. Positive = tick 0 is after the audio start; negative = tick 0 is before the audio start. |
 | `bpmChanges` | array | At least one `{ "tick": int, "bpm": number }`. The first entry should normally be at tick `0`. Later entries change tempo mid-song. |
@@ -107,7 +107,7 @@ The top-level `rival` block is optional and only needed for duel charts.
 Every note has `tick` and `type`. Other fields depend on the type.
 
 | Type | Extra fields | Meaning |
-|---|---|---|
+| --- | --- | --- |
 | `tap` | `x` (0.0–1.0) | Tap when it reaches the judgment line. |
 | `vertical` | `x` (0.0–1.0) | Falls straight down at fixed `x`. |
 | `long` | `x` (0.0–1.0), `durationTicks` (int) | Press at the head, hold, release at the tail. |
@@ -199,7 +199,7 @@ A chart becomes a single-player duel against a CPU rival as soon as at least one
 If you omit the top-level `rival` block, these defaults are used:
 
 | Field | Default | Meaning |
-|---|---|---|
+| --- | --- | --- |
 | `accuracy` | `0.95` | How likely the CPU is to earn a JUST on each rival note. |
 | `rivalHp` | `100` | Starting HP for the CPU rival. |
 | `playerHp` | `100` | Starting HP for the player. |
@@ -295,7 +295,7 @@ Only use audio, charts, and artwork you have the right to distribute. The bundle
 ## Troubleshooting
 
 | Problem | Likely cause | Fix |
-|---|---|---|
+| --- | --- | --- |
 | Chart does not appear in the list | No `*.rbchart.json` in the folder, or folder is not under `persistentDataPath/charts/`. | Check the folder layout and click **Refresh**. |
 | Preview fails to load audio | Audio file is missing or `audioFile` name does not match. | Verify the audio file exists in the chart folder and the filename matches `meta.audioFile` exactly. |
 | Notes are off-sync | Wrong `audioOffsetMs`. | Place a tap at tick 0 and adjust `audioOffsetMs` in small steps. |
@@ -307,7 +307,7 @@ Only use audio, charts, and artwork you have the right to distribute. The bundle
 
 ## File layout example
 
-```
+```text
 persistentDataPath/charts/my_song/
     my_song.rbchart.json
     beat.wav

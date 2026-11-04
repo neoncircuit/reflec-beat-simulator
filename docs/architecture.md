@@ -9,7 +9,7 @@ The simulator is split into three layers:
 - **`Gameplay/`** and **`UI/`** — Unity `MonoBehaviour`s that drive scenes, render the playfield, capture input, and load charts.
 - **`Editor/`** (Editor-only) — Authoring helpers: `ChartAuthoringTools`, `ChartPreviewWindow`, and the `Reflec Beat / Chart Preview` menu item.
 
-```
+```text
 Chart (Core)
 ├── Meta, Timing, Notes, Rival
 └── TimingConverter.ApplyTimes()   # tick → seconds
@@ -208,7 +208,6 @@ See [`authoring.md`](./authoring.md) for the user-facing guide.
 4. `GameplayScene` enters Play mode; `GameController.Start()` detects `ChartSession.IsPreview`.
 5. `GameController` filters notes with `ChartSection.GetNotesInRange`, schedules audio from `PreviewStartSec`, and offsets `_audioOffsetSec` so the existing judgment formula stays correct.
 6. Autoplay hits every note in the section; `ResultsUI` appears when it ends.
-
 
 ## Data flow
 

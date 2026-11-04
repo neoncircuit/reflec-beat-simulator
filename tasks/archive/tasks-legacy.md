@@ -3,7 +3,7 @@
 A running list of work items for the Reflec Beat Simulator.
 
 | ID | Task | Status | Notes |
-|----|------|--------|-------|
+| ---- | ------ | -------- | ------- |
 | 1 | Baseline repo in git | Completed | Legacy prototype + canonical docs committed as root baseline. |
 | 2 | M0: Unity packages + project settings | Completed | Input System, Test Framework, landscape, Best-latency DSP. |
 | 3 | M0: Core constants | Completed | `Constants.cs` with PPQ, judgment windows, approach time. |

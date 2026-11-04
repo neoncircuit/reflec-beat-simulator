@@ -1,6 +1,3 @@
 ---
 # Disable line-length rule for prose docs.
 MD013: false
-# Disable the table column style rule (markdownlint 0.39+, Super-linter v9).
-# Many tables in the docs use "|---|" delimiter rows with padded cells.
-MD060: false
