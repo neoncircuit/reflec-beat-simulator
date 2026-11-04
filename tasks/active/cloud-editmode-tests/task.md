@@ -2,7 +2,7 @@
 
 - **Sprint:** sprint-001
 - **Milestone:** M8
-- **Status:** Blocked
+- **Status:** Done
 
 ## Goal
 
@@ -16,7 +16,8 @@ that work is done (`AGENTS.md` rule 5).
 - [x] PR #5 (setup script and SessionStart hook) is merged
 - [x] A new cloud session installs the editor (2026-11-04)
 - [x] A new cloud session activates a license for its machine (2026-11-04)
-- [ ] `scripts/run-editmode-tests.sh` passes in a cloud session
+- [x] `scripts/run-editmode-tests.sh` passes in a cloud session (2026-11-04:
+  129 of 129 tests pass)
 
 ## Steps
 
@@ -41,13 +42,10 @@ that work is done (`AGENTS.md` rule 5).
 - [x] Owner: add `UNITY_EMAIL` and `UNITY_PASSWORD` of that Unity ID as
   environment variables (2026-11-04)
 - [x] Activate the license in a cloud session (SessionStart hook, 2026-11-04)
-- [ ] Owner: allow `cdn.packages.unity.com`. `download.packages.unity.com`
-  redirects package downloads to it.
-- [ ] Run the EditMode tests in a new cloud session
+- [x] Owner: allow `cdn.packages.unity.com`. `download.packages.unity.com`
+  redirects package downloads to it. (checked 2026-11-04)
+- [x] Run the EditMode tests in a cloud session (2026-11-04)
 
 ## Blockers
 
-- Network policy: `cdn.packages.unity.com` is blocked (HTTP 403 from the
-  proxy on 2026-11-04). The Package Manager cannot download
-  `com.unity.inputsystem` and `com.unity.textmeshpro`, so the editor cannot
-  open the project and the test run stops before the tests.
+None.

@@ -9,7 +9,7 @@
 ## Tasks
 
 - [x] Sprint task structure — `active/tasks-sprint-structure/`
-- [ ] EditMode tests in cloud sessions — `active/cloud-editmode-tests/`
+- [x] EditMode tests in cloud sessions — `active/cloud-editmode-tests/`
 
 ## Constraints
 
@@ -19,6 +19,4 @@
 
 ## Blockers
 
-- The cloud network policy blocks `cdn.packages.unity.com`. The Package
-  Manager downloads packages from it, so the editor cannot open the project.
-  The owner must allow it (see `active/cloud-editmode-tests/task.md`).
+None. All tasks are done. The owner decides when to close the sprint.

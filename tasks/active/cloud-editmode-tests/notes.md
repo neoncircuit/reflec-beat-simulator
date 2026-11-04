@@ -59,6 +59,16 @@
   denied" (see `~/.config/unity3d/upm.log`). The packages that fail are the
   ones that do not ship with the editor: `com.unity.inputsystem`,
   `com.unity.textmeshpro`, and `com.unity.package-manager.metadata-2022.3`.
+- Test run (2026-11-04, after `cdn.packages.unity.com` was allowed):
+  `scripts/run-editmode-tests.sh` passed, 129 of 129 tests in 13 fixtures,
+  no compiler errors or warnings. The run took 60 s, with the package
+  install and the import of the project. A run before that had made a part
+  of `Library/`, so the time for a new container can be longer.
+- Hosts that a cloud session needs, all checked on 2026-11-04:
+  `download.unity3d.com`, `packages.unity.com`,
+  `download.packages.unity.com`, `cdn.packages.unity.com`,
+  `license.unity3d.com`, `core.cloud.unity3d.com`, `activation.unity3d.com`,
+  `api.unity.com`.
 - Not verified:
   - Activation limits. Each new container is a new machine, and the script
     does not return the license (`-returnlicense`). If Unity limits the
