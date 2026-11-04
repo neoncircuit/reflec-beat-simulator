@@ -24,6 +24,10 @@ jobs:
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Do not post a summary comment on PRs (new in v8.4.0, "true" by
+          # default). The job token cannot write comments, and the result is
+          # in the job summary and the "lint" check.
+          ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false
           VALIDATE_ALL_CODEBASE: false
           # Set only "true" values. Super-linter stops with an error if some
           # VALIDATE_* values are "true" and others are "false". Languages

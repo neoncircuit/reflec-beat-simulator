@@ -80,3 +80,17 @@ changed files, so this check shows what later PRs can meet.
 - JSON: no findings on both versions.
 - The Super-linter image itself was not run locally (no Docker). The real
   check is the CI run.
+
+## CI on PR #10
+
+- First run (head `c5e48d9`, "Code quality" run 41884676977): the job
+  pulled `ghcr.io/super-linter/super-linter:slim-v9.0.0` and reported "All
+  files and directories linted successfully". The job passed.
+- But the log also showed `[ERROR] Error while posting pull request
+  summary`: a POST to the PR comments API got HTTP 403. Super-linter v8.4.0
+  added `ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT`, which is `true` by
+  default on GitHub Actions. The job token has no `pull-requests: write` or
+  `issues: write` permission.
+- Decision: set `ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false`. This
+  keeps the v7 behavior (no PR comments) and the current permissions. The
+  result is still in the job summary and in the "lint" check.
