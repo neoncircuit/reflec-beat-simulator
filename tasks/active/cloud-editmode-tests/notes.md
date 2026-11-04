@@ -41,11 +41,10 @@
   - The activation with a real login, and the hosts it needs after the login.
   - Unity accounts with two-factor login. Command-line activation probably
     fails for them: the editor cannot ask for the code.
-- Decision (owner, 2026-11-04): the owner turns off two-factor login on
-  their Unity ID until further notice. The other method was a separate
-  Unity ID without two-factor login, used only for cloud sessions, with its
-  own `.ulf` file for the serial. Use that method if the owner turns
-  two-factor login on again.
+- Decision (owner, 2026-11-04): a separate Unity ID without two-factor
+  login, used only for cloud sessions. The main Unity ID keeps two-factor
+  login. The serial must come from the `.ulf` file of the separate Unity ID.
+  Do not assume that the serial of another account works.
   - Activation limits. Each new container is a new machine, and the script
     does not return the license (`-returnlicense`). If Unity limits the
     number of activations, old activations must be removed in the Unity ID
