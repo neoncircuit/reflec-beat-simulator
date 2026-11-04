@@ -22,8 +22,8 @@ deprecation warnings in CI.
 - [ ] The owner merges or closes PR #1
 - [ ] The owner merges or closes PR #3
 - [ ] After the merges, "Code quality" and the "Static security analysis"
-  job pass on `main`. The "Secret scan" job fails on each push to `main`
-  for a different cause (see `notes.md`).
+  job pass on `main`. The "Secret scan" job on `main` is the task
+  `trufflehog-push-fix`.
 
 ## Steps
 
@@ -31,7 +31,8 @@ deprecation warnings in CI.
 - [x] Merge the three branches into the current `main` in a scratch
   worktree. Result: no conflicts, and the workflow files parse as YAML.
 - [x] Find why "Security scan" fails on each push to `main`. Result: the
-  cause is in `security.yml`, not in these PRs. The fix is in `todo.md`.
+  cause is in `security.yml`, not in these PRs. The fix is the sprint-002
+  task `trufflehog-push-fix`.
 - [ ] Owner: merge PR #2, then PR #1, then PR #3 (recommended order)
 - [ ] Check the CI runs on `main` after the merges
 
