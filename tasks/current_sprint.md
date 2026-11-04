@@ -1,23 +1,14 @@
-# Current sprint: sprint-002
+# Current sprint: none
 
 - **Milestone:** M8 — Device verification & build hardening
-- **Started:** 2026-11-04
-- **Goal:** Keep the CI workflows current. Review the open Dependabot PRs
-  for GitHub Actions.
-- **Previous sprint:** sprint-001, closed 2026-11-04
-  (`sprints/sprint-001/sprint.md`)
+- **Previous sprint:** sprint-002, closed 2026-11-04
+  (`sprints/sprint-002/sprint.md`)
+- **Next sprint:** sprint-003. It starts when the owner approves its tasks
+  from `todo.md`.
 
 ## Tasks
 
-- [ ] Review the Dependabot PRs for GitHub Actions —
-  `active/dependabot-actions-review/`. The review is done. The owner
-  merges the PRs.
-- [x] Fix the "Secret scan" job on pushes to `main` —
-  `active/trufflehog-push-fix/`. Done 2026-11-04: PR #8 merged, and
-  "Secret scan" passes on `main`.
-
-The owner selected the first task from `todo.md` on 2026-11-04, and added
-the second task on the same day.
+None. Do not start work until the owner approves the sprint-003 tasks.
 
 ## Constraints
 
