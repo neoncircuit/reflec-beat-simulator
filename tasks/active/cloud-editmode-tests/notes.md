@@ -37,14 +37,29 @@
   (analytics) are blocked too, but their failures are only warnings.
 - The password is in the editor command line while the activation runs, so
   other processes in the container can see it. GameCI has the same risk.
-- Not verified:
-  - The activation with a real login, and the hosts it needs after the login.
-  - Unity accounts with two-factor login. Command-line activation probably
-    fails for them: the editor cannot ask for the code.
 - Decision (owner, 2026-11-04): a separate Unity ID without two-factor
   login, used only for cloud sessions. The main Unity ID keeps two-factor
-  login. The serial must come from the `.ulf` file of the separate Unity ID.
-  Do not assume that the serial of another account works.
+  login. Command-line activation cannot ask for a two-factor code.
+- Real activation (2026-11-04, SessionStart hook at 13:17 UTC): it worked.
+  - The hosts that the activation needs are `license.unity3d.com`,
+    `core.cloud.unity3d.com`, `activation.unity3d.com`, and `api.unity.com`.
+    `public-cdn.cloud.unity3d.com` stays blocked; that is only a warning.
+  - The licensing client got an access token, then logged "ULF license
+    activated successfully". The new `Unity_lic.ulf` has machine bindings
+    1 and 2 equal to `/etc/machine-id`, and an empty `StopDate`.
+  - The serial in the new file is not the serial that the script sent. The
+    server sets the serial. `UNITY_LICENSE` still held the old file of the
+    main Unity ID, and the activation worked. The script needs only a
+    serial that has the correct format.
+  - The licensing client writes the license directory and file with mode
+    777. The file holds no password.
+- Package downloads (2026-11-04): `download.packages.unity.com` answers a
+  package `.tgz` request with HTTP 302 to `cdn.packages.unity.com`. The
+  proxy blocks that host, and the Package Manager logs "Access to ... was
+  denied" (see `~/.config/unity3d/upm.log`). The packages that fail are the
+  ones that do not ship with the editor: `com.unity.inputsystem`,
+  `com.unity.textmeshpro`, and `com.unity.package-manager.metadata-2022.3`.
+- Not verified:
   - Activation limits. Each new container is a new machine, and the script
     does not return the license (`-returnlicense`). If Unity limits the
     number of activations, old activations must be removed in the Unity ID
