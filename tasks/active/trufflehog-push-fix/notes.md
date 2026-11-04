@@ -42,3 +42,9 @@
   the `pull_request` event path. TruffleHog 3.99.8 scanned from `6ec8141`
   (PR base) to `f6303e4` (PR head): 2 commits, 0 verified and 0
   unverified secrets. Result: success.
+- `main`, "Security scan" run 41872298135 (push of `84af0d5`, the merge
+  of PR #8): the "Secret scan" job took the `push` event path.
+  TruffleHog 3.99.8 scanned from `6ec8141` (`before`) to `84af0d5`
+  (`after`): 3 commits, 0 verified and 0 unverified secrets. Result:
+  success. This is the first push to `main` on which the job passes.
+  "Code quality" run 41872298441 on the same push passed too.

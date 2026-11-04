@@ -2,8 +2,7 @@
 
 - **Sprint:** sprint-002
 - **Milestone:** M8 (maintenance)
-- **Status:** In progress. The fix is on the branch. It needs a merge to
-  `main` for the final check.
+- **Status:** Done (2026-11-04)
 
 ## Goal
 
@@ -18,8 +17,8 @@ a review.
 - [x] The TruffleHog action is pinned to a release tag (`v3.99.8`)
 - [x] "Secret scan" passes on a pull request with this change (PR #8,
   2026-11-04; see `notes.md`)
-- [ ] "Secret scan" passes on the push to `main` after the merge, and the
-  log shows a scan of the pushed commits
+- [x] "Secret scan" passes on the push to `main` after the merge, and the
+  log shows a scan of the pushed commits (run 41872298135, 2026-11-04)
 
 ## Steps
 
@@ -30,11 +29,11 @@ a review.
   event path with the new inputs (see `notes.md`)
 - [x] Remove `base` and `head`, and pin the action to `v3.99.8`
 - [x] Open PR #8 with this change (2026-11-04)
-- [ ] Owner: merge PR #8
-- [ ] Check the "Secret scan" log on `main` after the merge. Expect a
-  `base` and a `head` that are not the same, `commits_scanned` above 0,
-  and success.
+- [x] Merge PR #8 (owner request, rebase merge, 2026-11-04)
+- [x] Check the "Secret scan" log on `main` after the merge. Result: a
+  `base` and a `head` that are not the same, 3 commits scanned, and
+  success (see `notes.md`).
 
 ## Blockers
 
-None. The final check needs a push to `main`.
+None.
