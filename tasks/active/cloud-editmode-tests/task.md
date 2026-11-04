@@ -14,6 +14,7 @@ that work is done (`AGENTS.md` rule 5).
 
 - [x] PR #4 (Linux editor support in the test and build scripts) is merged
 - [x] PR #5 (setup script and SessionStart hook) is merged
+- [x] PR #6 (online license activation) is merged (2026-11-04)
 - [x] A new cloud session installs the editor (2026-11-04)
 - [x] A new cloud session activates a license for its machine (2026-11-04)
 - [x] `scripts/run-editmode-tests.sh` passes in a cloud session (2026-11-04:
@@ -45,6 +46,7 @@ that work is done (`AGENTS.md` rule 5).
 - [x] Owner: allow `cdn.packages.unity.com`. `download.packages.unity.com`
   redirects package downloads to it. (checked 2026-11-04)
 - [x] Run the EditMode tests in a cloud session (2026-11-04)
+- [x] Merge PR #6 (merged 2026-11-04)
 
 ## Blockers
 
