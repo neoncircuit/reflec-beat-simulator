@@ -87,3 +87,22 @@ This failure is not caused by the Dependabot PRs.
   task `trufflehog-push-fix`.
 - You can verify the fix only with a push to `main`, because the failure
   does not occur on pull requests.
+
+## Result on `main` (2026-11-04)
+
+- The PRs were merged in the order #2, #1, #3 with the rebase method:
+  `641ee83` (CodeQL Action v4), `32b98f5` (checkout v7), `f0d6962`
+  (Super-linter v7). There were no conflicts.
+- All six push runs on `main` passed: "Code quality" and "Security scan"
+  for each of the three commits.
+- Push of `f0d6962` (all three changes):
+  - "Code quality" run 41873886113: Super-linter used the image
+    `slim-v7.1.0` and passed.
+  - "Security scan" run 41873886147: `upload-sarif@v4` uploaded and
+    processed the DevSkim SARIF. The "CodeQL Action v3 will be
+    deprecated" warning is gone. "Secret scan" scanned `32b98f5..f0d6962`
+    (1 commit, 0 secrets).
+- The Node.js 20 deprecation warning is gone from all jobs.
+- Dependabot turned off automatic rebases on these PRs, because they were
+  open for more than 30 days. Review Dependabot PRs within 30 days, so
+  that Dependabot can still rebase them.
