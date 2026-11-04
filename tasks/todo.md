@@ -27,9 +27,10 @@ These are late gates. Do them after the owner accepts Editor playability.
 
 ## Maintenance
 
-- [ ] Look at a move from `github/super-linter` v7 (a fork that uses image
-  7.1.0) to the upstream `super-linter/super-linter` v8. Read the v8
-  breaking changes first.
+- [ ] Markdown clean-up: fix the 8 old markdownlint findings (MD040, MD031,
+  MD012) in `DESIGN.md` and `docs/`, and use one table style in all tables.
+  Then turn MD060 on again in `.github/linters/.markdown-lint.yml`. Details:
+  notes of the sprint-003 Super-linter task.
 
 ## Later (not in the roadmap)
 

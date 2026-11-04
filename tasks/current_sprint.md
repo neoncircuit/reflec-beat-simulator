@@ -1,14 +1,19 @@
-# Current sprint: none
+# Current sprint: sprint-003
 
 - **Milestone:** M8 — Device verification & build hardening
+- **Started:** 2026-11-04
+- **Goal:** Move Super-linter from the `github/super-linter` fork to the
+  upstream project.
 - **Previous sprint:** sprint-002, closed 2026-11-04
   (`sprints/sprint-002/sprint.md`)
-- **Next sprint:** sprint-003. It starts when the owner approves its tasks
-  from `todo.md`.
 
 ## Tasks
 
-None. Do not start work until the owner approves the sprint-003 tasks.
+- [ ] Move Super-linter to the upstream project —
+  `active/super-linter-upstream/`. The change is on the branch. The final
+  check is the CI run.
+
+The owner selected this task from `todo.md` on 2026-11-04.
 
 ## Constraints
 
