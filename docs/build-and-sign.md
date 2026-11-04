@@ -11,7 +11,7 @@ editor in batch mode.
 build (`BuildFailedException`) if any setting has drifted:
 
 | Setting | Value |
-|---|---|
+| --- | --- |
 | Package name | `com.neoncircuit.reflecbeat` |
 | Version | `0.8.0` (versionCode `8`) |
 | Scripting backend | IL2CPP (required for ARM64) |

@@ -73,8 +73,9 @@ changed files, so this check shows what later PRs can meet.
   0.39.0. Many tables use `|---|---|` delimiter rows with padded cells, and
   MD060 does not accept the mix.
 - Decision: turn off MD060 in `.github/linters/.markdown-lint.yml`. With
-  MD060 off, v9.0.0 gives the same 8 findings as v7.1.0. A clean-up of the
-  tables and the 8 old findings is in `todo.md`.
+  MD060 off, v9.0.0 gives the same 8 findings as v7.1.0. Later in
+  sprint-003, the `markdown-cleanup` task fixed the tables and the 8 old
+  findings, and turned MD060 on again.
 - YAML: the same result on both versions. Three `document-start` warnings,
   no errors.
 - JSON: no findings on both versions.
@@ -94,3 +95,13 @@ changed files, so this check shows what later PRs can meet.
 - Decision: set `ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false`. This
   keeps the v7 behavior (no PR comments) and the current permissions. The
   result is still in the job summary and in the "lint" check.
+- Second run (head `841c12f`, run 41885167259): the log goes from "All
+  files and directories linted successfully" to the job clean-up. There is
+  no `[ERROR]` line. The job passed.
+
+## Result on `main` (2026-11-04)
+
+- PR #10 was merged with the rebase method. `main` is at `04bfeaa`.
+- "Code quality" run 41885884587: the job pulled `slim-v9.0.0`, linted
+  with success, and logged no `[ERROR]` line. "Security scan" run
+  41885884363 passed too.

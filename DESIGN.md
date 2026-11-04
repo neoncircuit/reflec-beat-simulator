@@ -9,7 +9,7 @@ A fan-made, clean-room simulator inspired by Konami's Reflec Beat (2010–2020).
 ## 1. Locked decisions
 
 | Decision | Value |
-|---|---|
+| --- | --- |
 | Engine | Unity (existing project in this repo) |
 | Target device | Samsung Galaxy Tab (Android build target) |
 | Language | C# |
@@ -60,7 +60,7 @@ Trajectory (spawn point, travel path, approach speed) is derived by the engine f
 ### 3.3 Note types
 
 | Type | Behaviour | Milestone |
-|---|---|---|
+| --- | --- | --- |
 | `tap` | Tap when it crosses the judgment line | M1 |
 | `long` | `tick` + `durationTicks`; press at head, release at tail | M2 |
 | `vertical` | Falls straight down at fixed `x` | M2 |
@@ -173,10 +173,12 @@ On Android, `StreamingAssets` lives inside the APK and **cannot** be read with `
 
 1. **Load** the clip (decompressed in memory for the playing song, not streaming, to keep playback latency predictable).
 2. **Start** with a scheduled play so the start time is a known clock value:
+
    ```csharp
    double startDsp = AudioSettings.dspTime + 0.5;
    audioSource.PlayScheduled(startDsp);
    ```
+
 3. **Song clock:** `songTime = AudioSettings.dspTime − startDsp − audioOffsetSec`. Every note's on-screen position each frame is a pure function of `note.TimeSec − songTime`; notes are never animated independently. This keeps hundreds of objects locked to the music even through frame drops.
 4. **Judge:** on touch, compare touch time against the song clock, find the nearest unjudged note within the widest window near that `x`, grade it.
 
@@ -233,7 +235,7 @@ Use the Input System's `EnhancedTouch` API. Track `touch.touchId` per finger (de
 ### 4.6 Judgment windows (tunable constants)
 
 | Grade | Window |
-|---|---|
+| --- | --- |
 | JUST | ±33 ms |
 | GREAT | ±66 ms |
 | GOOD | ±100 ms |
@@ -247,7 +249,7 @@ Scoring: achievement-rate style (JUST 100% / GREAT 70% / GOOD 40%), scaled to a 
 
 Keep the core pure so it is unit-testable and engine-portable:
 
-```
+```text
 Assets/
 ├── Scripts/
 │   ├── Core/          # pure C#, NO UnityEngine gameplay deps:
@@ -269,7 +271,7 @@ Rule for agents: `Core/` classes must not reference `MonoBehaviour`, `GameObject
 ## 6. Risks
 
 | Risk | Mitigation |
-|---|---|
+| --- | --- |
 | Android touch/audio latency too high even with Best-latency DSP | M0 measures real deltas on the actual Galaxy Tab before further investment |
 | Multi-touch ghosting on dense patterns | Per-`touchId` tracking; test 4-finger chords in M1 |
 | dspTime jitter causing visual stutter | SongClock smoothing (§4.3) |

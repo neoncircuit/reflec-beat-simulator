@@ -7,7 +7,7 @@ The prototype is built with **Unity 2022.3 LTS** using **C#**.
 ## Why Unity?
 
 | Requirement | How Unity helps |
-|-------------|-----------------|
+| ------------- | ----------------- |
 | Android-first, iOS later | Cross-platform builds from one project. |
 | Touch-based rhythm game | Built-in multi-touch input and 2D tooling. |
 | Audio/visual sync | `AudioSettings.dspTime` and `AudioSource.PlayScheduled` enable sample-accurate timing. |

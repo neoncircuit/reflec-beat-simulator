@@ -94,7 +94,7 @@ The series added and occasionally removed object types across versions. Commonly
 documented categories:
 
 | Object | Description |
-|--------|-------------|
+| -------- | ------------- |
 | **Normal Object** | Circular object that often bounces off the side walls on its way to the judgment line. The basic note. |
 | **Gold Object** | Associated with **Just Reflec**; precise hits enable stronger competitive interactions. |
 | **Chain Object** | Linked objects that must be hit in sequence at a shared target area. |
@@ -126,7 +126,7 @@ Four tiers (best → worst): **JUST**, **GREAT**, **GOOD**, **MISS**.
 
 For original through *VOLZZA 2*, AR is approximately:
 
-```
+```text
 AR = (JUST × 3 + GREAT × 2 + GOOD × 1) / (Total Objects × 3) × 100
 ```
 
@@ -259,7 +259,7 @@ bridge is not a gameplay reimplementation — but all sit in the same preservati
 ecosystem:
 
 | Project | Role |
-|---------|------|
+| ------- | ---- |
 | **REFLET MUSE** / **RMSCreator** | Community simulation and chart editing. |
 | **reflec2mouse** | Converts original cabinet touch-panel serial data to mouse events. |
 
@@ -272,7 +272,7 @@ fan tools (e.g. needing an explicit audio offset in the chart format) informed
 ## 10. Mapping to this simulator
 
 | Original concept | Simulator status | Details |
-|------------------|------------------|---------|
+| ------------------ | ------------------ | --------- |
 | Touch-based timing | Implemented | Enhanced Touch, timestamped against `AudioSettings.dspTime`. |
 | Judgment line | Implemented | Single-player line near the player edge. |
 | Normal / Tap objects | Implemented | `tap` |

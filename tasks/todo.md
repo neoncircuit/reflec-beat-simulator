@@ -27,10 +27,7 @@ These are late gates. Do them after the owner accepts Editor playability.
 
 ## Maintenance
 
-- [ ] Markdown clean-up: fix the 8 old markdownlint findings (MD040, MD031,
-  MD012) in `DESIGN.md` and `docs/`, and use one table style in all tables.
-  Then turn MD060 on again in `.github/linters/.markdown-lint.yml`. Details:
-  notes of the sprint-003 Super-linter task.
+No open items.
 
 ## Later (not in the roadmap)
 
