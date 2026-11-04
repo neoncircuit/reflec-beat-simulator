@@ -8,7 +8,7 @@
 
 ## Tasks
 
-- [ ] Sprint task structure — `active/tasks-sprint-structure/`
+- [x] Sprint task structure — `active/tasks-sprint-structure/`
 - [ ] EditMode tests in cloud sessions — `active/cloud-editmode-tests/`
 
 ## Constraints
@@ -19,6 +19,9 @@
 
 ## Blockers
 
-- The cloud network policy blocks the Unity hosts. The owner must allow them
-  (see `active/cloud-editmode-tests/task.md`).
-- The cloud environment has no `UNITY_LICENSE` value.
+- The cloud network policy blocks the Unity login and activation hosts:
+  `core.cloud.unity3d.com`, `activation.unity3d.com`, `api.unity.com`. The
+  owner must allow them (see `active/cloud-editmode-tests/task.md`).
+- The cloud environment has no `UNITY_EMAIL` and `UNITY_PASSWORD` values. A
+  copied `UNITY_LICENSE` file alone does not work, because Unity binds it to
+  the machine that made it.

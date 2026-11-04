@@ -7,6 +7,41 @@
   because `grep -q` stops early and breaks the pipe. Use `grep ... > /dev/null`.
 - The default hook timeout is 60 s. The hook uses 1800 s for the first
   download.
-- Not verified: the editor archive name (the script reads it from Unity's
-  release `.ini`), and a Personal `.ulf` license on a different machine.
-  GameCI uses the same license method in CI.
+- Verified on 2026-11-04: the setup script downloads and installs the editor
+  in a cloud session.
+
+## License
+
+- A `Unity_lic.ulf` file from Unity Hub does not work on another machine. The
+  licensing client (1.16.2) compares the machine bindings in the file with the
+  current machine and fails with "Legacy MachineBinding validation failed" and
+  "TimeStamp validation failed". A new file from Unity Hub has the same
+  problem. Unity does not do manual (offline) activation of Personal licenses.
+- A Personal `.ulf` file also expires after some days (`StopDate`). The
+  licensing client must refresh it online.
+- The working method is the GameCI method: read the serial from the
+  `DeveloperData` field of the `.ulf` file (base64, skip the first 4 bytes),
+  then activate on the new machine:
+  `Unity -batchmode -nographics -quit -serial S -username E -password P`.
+  The extracted serial agrees with `SerialMasked` in the owner's file.
+- Probe with false values (2026-11-04):
+  - The editor does not open or make a project for this command, so
+    `-projectPath` is not necessary.
+  - The email, password, and serial are not in the editor log or in
+    `~/.config/unity3d/Unity/Unity.Licensing.Client.log`.
+  - The editor exits with code 1 when the activation fails.
+  - The login goes to `https://core.cloud.unity3d.com/api/login`. The proxy
+    blocks it, and the editor reports "Request timed out".
+- The licensing client also uses `activation.unity3d.com` and `api.unity.com`.
+  `public-cdn.cloud.unity3d.com` (remote config) and `cdp.cloud.unity3d.com`
+  (analytics) are blocked too, but their failures are only warnings.
+- The password is in the editor command line while the activation runs, so
+  other processes in the container can see it. GameCI has the same risk.
+- Not verified:
+  - The activation with a real login, and the hosts it needs after the login.
+  - Unity accounts with two-factor login. Command-line activation probably
+    fails for them.
+  - Activation limits. Each new container is a new machine, and the script
+    does not return the license (`-returnlicense`). If Unity limits the
+    number of activations, old activations must be removed in the Unity ID
+    account.
