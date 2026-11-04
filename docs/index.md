@@ -30,6 +30,6 @@ This is a fan-made homage inspired by Konami's Reflec Beat gameplay *concept*. P
 - **M6 — Persistence & session flow**: complete. Saved gameplay settings, per-chart high scores, Retry/Back navigation.
 - **M7 — Visual feel & transitions**: complete. Chart-select redesign, scene/UI transitions, note visibility polish.
 - **Original visual identity**: complete / iterated. Soft cinematic menu cards (Chart Select / Results / Calibration) + dark neon play arena. Inspired by Plus *quality*, not Konami visuals.
-- **M8 — Device verification & build hardening**: build half complete (locked settings, signed-APK pipeline, headless tests — see [`build-and-sign.md`](./build-and-sign.md)); on-device Tab checks deferred until Editor feel is accepted ([`device-verification.md`](./device-verification.md)).
+- **M8 — Device verification & build hardening**: build half complete (locked settings, signed-APK pipeline, headless tests, also in Claude Code cloud sessions — see [`build-and-sign.md`](./build-and-sign.md)); on-device Tab checks deferred until Editor feel is accepted ([`device-verification.md`](./device-verification.md)).
 
 See [`../PRODUCT.md`](../PRODUCT.md) for the full roadmap, [`../tasks/current_sprint.md`](../tasks/current_sprint.md) for the current sprint, and [`../tasks/todo.md`](../tasks/todo.md) for the backlog.

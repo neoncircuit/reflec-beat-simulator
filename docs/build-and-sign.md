@@ -117,6 +117,32 @@ Produces `TestResults.xml` (gitignored), prints
 `total/passed/failed/result`, and exits non-zero unless every EditMode test
 passes.
 
+### Cloud sessions (Claude Code)
+
+In a Claude Code cloud session, the SessionStart hook
+(`.claude/hooks/session-start.sh`) runs `scripts/setup-unity-linux.sh`. The
+script installs the Linux editor and activates a Unity license for the
+container. Then `./scripts/run-editmode-tests.sh` works as above.
+
+The cloud environment needs these settings:
+
+- Environment variables:
+  - `UNITY_EMAIL` and `UNITY_PASSWORD`: a Unity ID without two-factor login.
+    Command-line activation cannot ask for a two-factor code, so use a
+    separate Unity ID for cloud sessions.
+  - `UNITY_LICENSE`: the contents of a `Unity_lic.ulf` file (raw XML or
+    base64). The script reads a serial from it. The file itself does not
+    work in the container, because Unity binds it to the machine that made
+    it.
+- Allowed hosts: `download.unity3d.com`, `packages.unity.com`,
+  `download.packages.unity.com`, `cdn.packages.unity.com`,
+  `license.unity3d.com`, `core.cloud.unity3d.com`, `activation.unity3d.com`,
+  and `api.unity.com`.
+
+If the license setup fails, the hook says so at session start, and the
+error lines are in the hook log. A new session checks out `main`, so changes
+to the hook or the setup script have an effect only after they are merged.
+
 ## Device verification
 
 See `docs/device-verification.md` for the on-device checklist (calibration,

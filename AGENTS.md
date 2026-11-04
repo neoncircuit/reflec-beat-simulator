@@ -63,6 +63,8 @@ The Unity editor on this agent is version 2022.3.62f3. The program path is `/opt
 
 Run EditMode tests with `./scripts/run-editmode-tests.sh`. The script uses the Linux editor when `/opt/unity/Editor/Unity` is present. On WSL it still uses the Windows editor.
 
+In Claude Code cloud sessions, the SessionStart hook installs the editor and activates the license. The environment settings are in `docs/build-and-sign.md` ("Cloud sessions").
+
 The `start` command activates a Unity Personal license. It reads `UNITY_EMAIL` and `UNITY_PASSWORD`.
 
 Do not report that audio sync is correct from the editor. Device checks are in `docs/device-verification.md`.
