@@ -45,6 +45,9 @@ UNITY_EXIT=$?
 set -e
 
 if [[ ! -f "$RESULTS" ]]; then
+    if grep 'No valid Unity Editor license found' "$LOG" > /dev/null 2>&1; then
+        echo "error: Unity has no valid license. See the license notes in scripts/setup-unity-linux.sh." >&2
+    fi
     echo "error: TestResults.xml was not produced (unity exit $UNITY_EXIT). See $LOG" >&2
     exit 1
 fi

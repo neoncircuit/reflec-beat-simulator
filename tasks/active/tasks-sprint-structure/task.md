@@ -2,7 +2,7 @@
 
 - **Sprint:** sprint-001
 - **Milestone:** M8 (process change, no gameplay code)
-- **Status:** In progress
+- **Status:** Done
 
 ## Goal
 
@@ -16,7 +16,7 @@ start alone.
 - [x] `index.md`, `current_sprint.md`, `todo.md`, and `active/_template/` exist
 - [x] `AGENTS.md` tells agents to read `current_sprint.md`
 - [x] Links to the old files in `README.md` and `docs/` are updated
-- [ ] The owner merges PR #5
+- [x] The owner merges PR #5 (merged 2026-11-01)
 
 ## Steps
 
