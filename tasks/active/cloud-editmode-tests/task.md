@@ -32,8 +32,11 @@ that work is done (`AGENTS.md` rule 5).
   `UNITY_LICENSE` and the Unity ID login (the GameCI method)
 - [ ] Owner: allow these hosts too: `core.cloud.unity3d.com`,
   `activation.unity3d.com`, `api.unity.com`
-- [ ] Owner: add `UNITY_EMAIL` and `UNITY_PASSWORD` as environment variables.
-  Keep `UNITY_LICENSE`: the script reads the serial from it.
+- [ ] Owner: make a separate Unity ID for cloud sessions, without two-factor
+  login. In Unity Hub, get a Personal license with it, and copy its
+  `Unity_lic.ulf` into `UNITY_LICENSE` (the script reads the serial from it).
+- [ ] Owner: add `UNITY_EMAIL` and `UNITY_PASSWORD` of that Unity ID as
+  environment variables.
 - [ ] Run the EditMode tests in a new cloud session
 
 ## Blockers
@@ -42,3 +45,5 @@ that work is done (`AGENTS.md` rule 5).
   (`core.cloud.unity3d.com`, `activation.unity3d.com`, `api.unity.com`;
   HTTP 403 from the proxy on 2026-11-04).
 - No `UNITY_EMAIL` and `UNITY_PASSWORD` values in the cloud environment.
+- The owner's Unity ID probably uses two-factor login (2026-11-04). The
+  command-line activation cannot sign in to it.
