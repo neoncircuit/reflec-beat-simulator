@@ -2,8 +2,7 @@
 
 - **Sprint:** sprint-003
 - **Milestone:** M8 (maintenance)
-- **Status:** In progress. The change is on the branch. The last check is
-  the CI run on the PR.
+- **Status:** Done (2026-11-04)
 
 ## Goal
 
@@ -19,7 +18,8 @@ findings.
   `.github/linters/.markdown-lint.yml`
 - [x] markdownlint 0.49.1 (Super-linter v9) and 0.41.0 find nothing in all
   31 tracked Markdown files
-- [ ] "Code quality" passes on the PR with this change
+- [x] "Code quality" passes on PR #11. The PR is merged only after CI is
+  green on its last commit (owner request, 2026-11-04).
 
 ## Steps
 
@@ -29,7 +29,7 @@ findings.
 - [x] Remove `MD060: false`, run `markdownlint --fix`, and fix the last table
   by hand
 - [x] Check that the table edits change only spaces and dashes
-- [ ] Open a PR, and merge it when it is green (owner request, 2026-11-04)
+- [x] Open PR #11, and merge it when it is green
 
 ## Blockers
 
