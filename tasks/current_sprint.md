@@ -19,12 +19,6 @@
 
 ## Blockers
 
-- The cloud network policy blocks the Unity login and activation hosts:
-  `core.cloud.unity3d.com`, `activation.unity3d.com`, `api.unity.com`. The
-  owner must allow them (see `active/cloud-editmode-tests/task.md`).
-- The cloud environment has no `UNITY_EMAIL` and `UNITY_PASSWORD` values. A
-  copied `UNITY_LICENSE` file alone does not work, because Unity binds it to
-  the machine that made it.
-- The owner's Unity ID uses two-factor login. The command-line activation
-  cannot sign in to it. The owner will make a separate Unity ID without
-  two-factor login for cloud sessions.
+- The cloud network policy blocks `cdn.packages.unity.com`. The Package
+  Manager downloads packages from it, so the editor cannot open the project.
+  The owner must allow it (see `active/cloud-editmode-tests/task.md`).

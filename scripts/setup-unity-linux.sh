@@ -22,9 +22,10 @@
 # 1 = editor setup failed, 2 = editor ready but the license setup failed.
 #
 # Network: the download needs download.unity3d.com. When the editor opens the
-# project, it also needs packages.unity.com, download.packages.unity.com, and
-# license.unity3d.com. The activation also needs core.cloud.unity3d.com,
-# activation.unity3d.com, and api.unity.com.
+# project, it also needs packages.unity.com, download.packages.unity.com,
+# cdn.packages.unity.com (package files), and license.unity3d.com. The
+# activation also needs core.cloud.unity3d.com, activation.unity3d.com, and
+# api.unity.com.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
