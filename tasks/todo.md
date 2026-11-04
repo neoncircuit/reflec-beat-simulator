@@ -27,8 +27,13 @@ These are late gates. Do them after the owner accepts Editor playability.
 
 ## Maintenance
 
-- [ ] Review the open Dependabot PRs for GitHub Actions (`actions/checkout`,
-  `github/codeql-action`, `github/super-linter`)
+- [ ] Fix the "Secret scan" job in `security.yml`. It fails on each push to
+  `main`, because TruffleHog gets `base: main` and `head: HEAD`. Remove these
+  two inputs, and pin `trufflesecurity/trufflehog` to a release tag instead
+  of `@main`. Details: notes of the sprint-002 Dependabot review.
+- [ ] Look at a move from `github/super-linter` v7 (a fork that uses image
+  7.1.0) to the upstream `super-linter/super-linter` v8. Read the v8
+  breaking changes first.
 
 ## Later (not in the roadmap)
 
