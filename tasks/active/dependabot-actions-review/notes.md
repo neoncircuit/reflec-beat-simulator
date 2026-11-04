@@ -83,6 +83,7 @@ This failure is not caused by the Dependabot PRs.
   the `after` commit.
 - Fix: remove the `base` and `head` inputs. Also pin
   `trufflesecurity/trufflehog` to a release tag. `@main` is a moving
-  branch, and Dependabot does not update it. This fix is in `todo.md`.
+  branch, and Dependabot does not update it. This fix is the sprint-002
+  task `trufflehog-push-fix`.
 - You can verify the fix only with a push to `main`, because the failure
   does not occur on pull requests.
