@@ -25,3 +25,6 @@
 - The cloud environment has no `UNITY_EMAIL` and `UNITY_PASSWORD` values. A
   copied `UNITY_LICENSE` file alone does not work, because Unity binds it to
   the machine that made it.
+- The owner's Unity ID probably uses two-factor login. The command-line
+  activation cannot sign in to it, so the owner must make a separate Unity ID
+  without two-factor login for cloud sessions.
