@@ -12,9 +12,9 @@
 - [ ] Review the Dependabot PRs for GitHub Actions —
   `active/dependabot-actions-review/`. The review is done. The owner
   merges the PRs.
-- [ ] Fix the "Secret scan" job on pushes to `main` —
-  `active/trufflehog-push-fix/`. The fix is on the branch. The final check
-  needs a merge to `main`.
+- [x] Fix the "Secret scan" job on pushes to `main` —
+  `active/trufflehog-push-fix/`. Done 2026-11-04: PR #8 merged, and
+  "Secret scan" passes on `main`.
 
 The owner selected the first task from `todo.md` on 2026-11-04, and added
 the second task on the same day.
