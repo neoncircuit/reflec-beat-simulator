@@ -21,7 +21,7 @@ jobs:
       # commits of the push or pull request event. On a push to main,
       # "base: main" and "head: HEAD" are the same commit, and the scan fails.
       - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@v3.99.8
+        uses: trufflesecurity/trufflehog@v3.100.1
         with:
           path: ./
           extra_args: --debug --only-verified
